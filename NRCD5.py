@@ -37,22 +37,23 @@ curr_dir = os.getcwd()
 #print(curr_dir)
 logger.info('Current directory' + curr_dir)
 
-tempdir = filedialog.askdirectory(initialdir=curr_dir,
+file_path_variable = filedialog.askdirectory(initialdir=curr_dir,
                                               title='Please select a directory containing the data')
-if len(tempdir) > 0:
+if len(file_path_variable) > 0:
         # print("You chose: %s" % tempdir)
-    logger.info('Working with' + tempdir)
+    logger.info('Working with' + file_path_variable)
 #return tempdir
 
 
-def nrcd_running_check():
+def nrcd_running_check(number_of_windows : str):
     from pywinauto import Application
 
     tb = Application(backend="uia").connect(title='Taskbar')  # backend is important!!!
 
     running_apps = tb.Taskbar.child_window(title="Running applications", control_type="ToolBar")
 
-    nrcd_windows = "NRCD - 2 running windows"
+    nrcd_windows = "NRCD - " + number_of_windows + "running windows"
+    print(nrcd_windows)
 
     if nrcd_windows in [w.window_text() for w in running_apps.children()]:
         wait_flag = True
@@ -63,7 +64,7 @@ def nrcd_running_check():
 
 
 #file_path_variable = search_for_file_path()
-file_path_variable = tempdir
+# file_path_variable = tempdir
 print("\nfile_path_variable = ", file_path_variable)
 
 #app = Application.start(path="C:/Program Files (x86)/NRCD/NRCD.exe",backend="uia")
@@ -94,16 +95,16 @@ def dataloading(app, file_path_variable):
     app.window(best_match='National Roads Condition Database - Version*', top_level_only=True).child_window(
         best_match='Loading').click()
 
-
-
 # if the file_path_variable directory contains a file 'BatchList' use 'Select Batch File'
 
     if os.path.isfile(file_path_variable + '/BatchList.txt'):
         filename = file_path_variable + '/BatchList.txt'
         print("\nfile name exists using Select", filename)
 
+        time.sleep(15)
+
         app.window(best_match='National Roads Condition Database Version', top_level_only=True) \
-            .child_window(best_match='Select Batch file').press()
+            .child_window(best_match='Select Batch file').click()
 
         filename = filename.replace('/', '\\')
         print("\nfile exists", filename)
@@ -134,8 +135,7 @@ def dataloading(app, file_path_variable):
         app.Dialog.OK.click()
 
         time.sleep(15)
-        app3 = Application(backend="uia") \
-            .connect(title='Create a file in the required directory')
+        app3 = Application(backend="uia").connect(title='Create a file in the required directory')
         print("\nconnect app3")
         time.sleep(15)
         app3.window(title_re='Create a file in the required directory').type_keys(filename[0], with_spaces=True)
@@ -169,7 +169,7 @@ def dataloading(app, file_path_variable):
     logger.info('Starting loading for ' + filename[0])
     # wait for the loading to finish
 
-    while nrcd_running_check():
+    while nrcd_running_check("2"):
         logger.info('waiting for loading to finish')
         time.sleep(60)
 
@@ -182,20 +182,26 @@ def assign_la(app, file_path_variable):
 
     logger.info('starting local authority assignment')
 
-
-
     app.window(best_match='National Roads Condition Database',
                top_level_only=True).child_window(best_match='Attributes').click()
-    time.sleep(10)
+    time.sleep(15)
 
     app.window(best_match='National Roads Condition Database',
                top_level_only=True).print_control_identifiers()
 
-    app.window(best_match='National Roads Condition Database') \
-        .child_window(title="National Roads Condition Database", control_type="Window") \
-        .child_window(title="Local Authority Attribute", auto_id="3", control_type="Group") \
-        .child_window(title="Select Batch File", auto_id="7", control_type="Button") \
+    #.child_window(title="National Roads Condition Database", control_type="Window") \
+    time.sleep(15)
+
+    groupcontrol = app.window(best_match='National Roads Condition Database - Version *') \
+       .child_window(title="Local Authority Attribute", auto_id="3", control_type="Group")
+
+    groupcontrol.child_window(title="Select Batch File", auto_id="7", control_type="Button") \
         .click()
+
+    # app.window(best_match='National Roads Condition Database - Version *') \
+    #  .child_window(title="Local Authority Attribute", auto_id="3", control_type="Group") \
+    #   .child_window(title="Select Batch File", auto_id="7", control_type="Button") \
+    #   .click()
 
     filename = file_path_variable + '/BatchList.txt'
     print("\nfilename is ", filename)
@@ -203,6 +209,7 @@ def assign_la(app, file_path_variable):
     time.sleep(15)
     app4 = Application(backend="uia").connect(title_re='Select a batch file', visible_only=True)
     print("\nConnect app4 filename is ", filename)
+    time.sleep(15)
     app4.window(title_re='Select a batch file').type_keys(filename, with_spaces=True)
     app4.window(title_re='Select a batch file').type_keys('%o')
     del app4
@@ -210,35 +217,49 @@ def assign_la(app, file_path_variable):
 
     local_authority = filename.split("\\")[-2]
 
-    print(local_authority)
+    # print(local_authority)
 
-    logger.info('starting to assign attributes for' + local_authority)
+    logger.info('starting to assign attributes for ' + local_authority)
     # Load the human name to database name csv table
 
     lookup_table = '//trllimited/data/INF_ScannerQA/Audit_Reports/Tools/LA_to_NRCD_Name.csv'
 
     la_lookup_table = pd.read_csv(lookup_table, index_col='Audit_Report_name', dtype={'INDEX': str})
 
-    la_db_name = la_lookup_table.loc[local_authority, "NRCD_Name"]
+    la_db_name : str = la_lookup_table.loc[local_authority, "NRCD_Name"]
 
     survey_year = "2019/20"
     print(la_db_name)
-    time.sleep(5)
+    logger.info('DB name is  ' + la_db_name)
 
     app.window(best_match='National Roads Condition Database - Version*') \
+        .child_window(best_match='Local Authority Attribute', control_type="Group").print_control_identifiers()
+    time.sleep(15)
+
+    # app.window(best_match='National Roads Condition Database - Version *') \
+    # .child_window(title="Local Authority Attribute", control_type="Group") \
+    # .child_window(best_match='3',control_type="ComboBox").type_keys("%{DOWN}")
+    # app.window(best_match='National Roads Condition Database - Version*') \
+    # .child_window(best_match='Local Authority Attribute', control_type="Group") \
+    # .child_window(auto_id='6', control_type="ComboBox").select(la_db_name)
+    print(la_db_name)
+
+    batch_combobox1 = app.window(best_match='National Roads Condition Database - Version*') \
         .child_window(best_match='Local Authority Attribute', control_type="Group") \
-        .child_window(auto_id='6', control_type="ComboBox") \
-        .select(la_db_name)
+        .child_window(auto_id='6', control_type="ComboBox").wait('exists enabled visible ready')
+
+    from pywinauto.controls.win32_controls import ComboBoxWrapper
+    ComboBoxWrapper(batch_combobox1).select(la_db_name)
+
+    batch_combobox2 = app.window(best_match='National Roads Condition Database - Version*') \
+        .child_window(best_match='Local Authority Attribute', control_type="Group") \
+        .child_window(auto_id='4', control_type="ComboBox").wait('exists enabled visible ready')
+
+    ComboBoxWrapper(batch_combobox2).select(" 2019/20")
 
     time.sleep(5)
 
     print(survey_year)
-
-    app.window(best_match='National Roads Condition Database - Version*') \
-        .child_window(best_match='Local Authority Attribute', control_type="Group") \
-        .child_window(auto_id="4", control_type="ComboBox").select(" 2019/20")
-
-    print(la_db_name)
 
     app.window(best_match='National Roads Condition Database - Version*') \
         .child_window(title="Assign Local Authority", auto_id="5", control_type="Button") \
@@ -246,8 +267,9 @@ def assign_la(app, file_path_variable):
 
     logger.info('waiting for LA assignment to complete')
 
-    app.window(best_match='National Roads Condition Database - Version*') \
-        .child_window(title='NRCD',control_type="Window").wait("exists")
+    while nrcd_running_check("2"):
+        logger.info('waiting for loading to finish')
+        time.sleep(60)
 
     app.window(best_match='National Roads Condition Database - Version*') \
         .child_window(title='NRCD', control_type="Window") \
@@ -266,7 +288,7 @@ def fitting(app):
     app.window(best_match='National Roads Condition Database',
                top_level_only=True).child_window(best_match='Fitting').click()
 
-    time.sleep(10)
+    time.sleep(5)
 
     app.window(best_match='National Roads Condition Database', top_level_only=True) \
         .child_window(best_match='Fit using a grid').click()
@@ -274,29 +296,38 @@ def fitting(app):
     app.window(best_match='National Roads Condition Database', top_level_only=True) \
         .child_window(best_match='Fit unfitted data').click()
 
-    app.window(best_match='National Roads Condition Database - Version*') \
+    batch_combobox4 = app.window(best_match='National Roads Condition Database - Version*') \
         .child_window(best_match='Year options', control_type="Group") \
-        .child_window(control_type="ComboBox").select(" 2019/20")
+        .child_window(control_type="ComboBox").wait('exists enabled visible ready')
 
-    time.sleep(10)
+    from pywinauto.controls.win32_controls import ComboBoxWrapper
+    from pywinauto.controls.win32_controls import ButtonWrapper
+    ComboBoxWrapper(batch_combobox4).select(" 2019/20")
 
-    # app.window(best_match='National Roads Condition Database - Version*') \
-    #   .print_control_identifiers()
+    time.sleep(5)
 
-    app.window(best_match='National Roads Condition Database') \
-        .child_window(best_match='National Roads Condition Database') \
-        .child_window(title="Exit", auto_id="12", control_type="Button").click()
+    main_screen = app.window(best_match='National Roads Condition Database - V*')#\
+    #    .child_window(best_match='National Roads Condition Database')
 
-    app.window(best_match='National Roads Condition Database - Version*') \
-        .child_window(title="Process", auto_id="18", control_type="CheckBox").uncheck()
+    main_screen.child_window(title="Exit", auto_id="12", control_type="Button").click()
 
-    app.window(best_match='National Roads Condition Database - Version*') \
-        .child_window(title="Process", auto_id="17", control_type="CheckBox").check()
+    #main_screen_group = main_screen.child_window(auto_id="11", control_type="Group")
 
-    app.window(best_match='National Roads Condition Database - Version', top_level_only=True). \
-        child_window(best_match='Process').click()
+    main_screen_ProcessCheckbox = main_screen.child_window(title="Process", auto_id="15", control_type="CheckBox")
+    main_screen_ProcessCheckbox2 = main_screen.child_window(title="Process", auto_id="16", control_type="CheckBox")
+    main_screen_ProcessCheckbox3 = main_screen.child_window(title="Process", auto_id="17", control_type="CheckBox")
+    main_screen_ProcessCheckbox4 = main_screen.child_window(title="Process", auto_id="18", control_type="CheckBox")
 
-    while nrcd_running_check():
+    ButtonWrapper(main_screen_ProcessCheckbox).uncheck_by_click()
+    ButtonWrapper(main_screen_ProcessCheckbox2).uncheck_by_click()
+    ButtonWrapper(main_screen_ProcessCheckbox3).check_by_click()
+    ButtonWrapper(main_screen_ProcessCheckbox4).uncheck_by_click()
+
+    main_screen.Process.click()
+
+    time.sleep(60)
+
+    while nrcd_running_check("2"):
         logger.info('waiting for Fitting to complete')
         time.sleep(60)
 
@@ -304,9 +335,9 @@ def fitting(app):
     return
 
 
-dataloading(app, file_path_variable)
+# dataloading(app, file_path_variable)
 
-assign_la(app, file_path_variable)
+# assign_la(app, file_path_variable)
 
 fitting(app)
 
