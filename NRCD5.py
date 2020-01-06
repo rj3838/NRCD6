@@ -30,17 +30,14 @@ ch.setFormatter(formatter)
 # add ch to logger
 logger.addHandler(ch)
 
-
-#def search_for_file_path():
-#import tkinter.filedialog
 curr_dir = os.getcwd()
-#print(curr_dir)
+
 logger.info('Current directory' + curr_dir)
 
-file_path_variable = filedialog.askdirectory(initialdir=curr_dir,
-                                              title='Please select a directory containing the data')
+file_path_variable = filedialog \
+    .askdirectory(initialdir=curr_dir, title='Please select a directory containing the data')
+
 if len(file_path_variable) > 0:
-        # print("You chose: %s" % tempdir)
     logger.info('Working with' + file_path_variable)
 #return tempdir
 
@@ -52,7 +49,7 @@ def nrcd_running_check(number_of_windows : str):
 
     running_apps = tb.Taskbar.child_window(title="Running applications", control_type="ToolBar")
 
-    nrcd_windows = "NRCD - " + number_of_windows + "running windows"
+    nrcd_windows = "NRCD - " + number_of_windows + " running windows"
     print(nrcd_windows)
 
     if nrcd_windows in [w.window_text() for w in running_apps.children()]:
@@ -62,12 +59,8 @@ def nrcd_running_check(number_of_windows : str):
 
     return wait_flag
 
-
-#file_path_variable = search_for_file_path()
-# file_path_variable = tempdir
 print("\nfile_path_variable = ", file_path_variable)
 
-#app = Application.start(path="C:/Program Files (x86)/NRCD/NRCD.exe",backend="uia")
 from pywinauto.application import Application
 
 app = Application(backend="uia").start('C:/Program Files (x86)/NRCD/NRCD.exe')
@@ -77,16 +70,11 @@ app.window(best_match='National Roads Condition Database',
 
 time.sleep(15)
 
-app.window(best_match='',top_level_only=True) \
+app.window(best_match='', top_level_only=True) \
     .print_control_identifiers()
 
-app.window(best_match='',top_level_only=True) \
+app.window(best_match='', top_level_only=True) \
     .child_window(best_match='Enter System').click()
-# app.window(best_match='National Roads Condition Database',
-#               top_level_only=True).child_window(best_match='Loading').click()
-
-# from pathlib import Path
-
 
 # Loading section
 
@@ -97,7 +85,7 @@ def dataloading(app, file_path_variable):
 
 # if the file_path_variable directory contains a file 'BatchList' use 'Select Batch File'
 
-    if os.path.isfile(file_path_variable + '/BatchList.txt'):
+    if os.path.isfile(file_path_variable + '/BatchList.txt') :
         filename = file_path_variable + '/BatchList.txt'
         print("\nfile name exists using Select", filename)
 
@@ -134,7 +122,7 @@ def dataloading(app, file_path_variable):
 
         app.Dialog.OK.click()
 
-        time.sleep(15)
+        time.sleep(30)
         app3 = Application(backend="uia").connect(title='Create a file in the required directory')
         print("\nconnect app3")
         time.sleep(15)
@@ -167,11 +155,19 @@ def dataloading(app, file_path_variable):
                top_level_only=True).child_window(best_match='Process').click()
 
     logger.info('Starting loading for ' + filename[0])
-    # wait for the loading to finish
 
-    while nrcd_running_check("2"):
-        logger.info('waiting for loading to finish')
-        time.sleep(60)
+    time.sleep(60)
+    # wait for the loading to finish
+    #app.window(best_match='National Roads Condition Database - Version',
+     #          top_level_only=True).print_control_identifiers()
+
+    app.window(best_match='National Roads Condition Database - Version*') \
+        .child_window(best_match='Cancel').wait_not('exists enabled visible ready')
+    # .child_window(bset_match='Cancel',auto_id='1').wait_not('exists enabled visible ready')
+
+    ##while nrcd_running_check("2"):
+    logger.info('loading completed')
+     #   time.sleep(90)
 
     return
 
@@ -253,7 +249,7 @@ def assign_la(app, file_path_variable):
 
     batch_combobox2 = app.window(best_match='National Roads Condition Database - Version*') \
         .child_window(best_match='Local Authority Attribute', control_type="Group") \
-        .child_window(auto_id='4', control_type="ComboBox").wait('exists enabled visible ready')
+        .child_window(auto_id='4', control_type="ComboBox") #.wait('exists enabled visible ready')
 
     ComboBoxWrapper(batch_combobox2).select(" 2019/20")
 
@@ -267,9 +263,13 @@ def assign_la(app, file_path_variable):
 
     logger.info('waiting for LA assignment to complete')
 
-    while nrcd_running_check("2"):
-        logger.info('waiting for loading to finish')
-        time.sleep(60)
+    # while nrcd_running_check("2"):
+    #    logger.info('waiting for loading to finish')
+    #    time.sleep(60)
+
+    app.window(best_match='National Roads Condition Database - Version*') \
+        .child_window(title='NRCD', control_type="Window") \
+        .wait("exists enabled visible ready")
 
     app.window(best_match='National Roads Condition Database - Version*') \
         .child_window(title='NRCD', control_type="Window") \
@@ -282,36 +282,12 @@ def assign_la(app, file_path_variable):
 
 
 def fitting(app):
-
-    logger.info('starting fitting')
-
-    app.window(best_match='National Roads Condition Database',
-               top_level_only=True).child_window(best_match='Fitting').click()
-
-    time.sleep(5)
-
-    app.window(best_match='National Roads Condition Database', top_level_only=True) \
-        .child_window(best_match='Fit using a grid').click()
-
-    app.window(best_match='National Roads Condition Database', top_level_only=True) \
-        .child_window(best_match='Fit unfitted data').click()
-
-    batch_combobox4 = app.window(best_match='National Roads Condition Database - Version*') \
-        .child_window(best_match='Year options', control_type="Group") \
-        .child_window(control_type="ComboBox").wait('exists enabled visible ready')
-
     from pywinauto.controls.win32_controls import ComboBoxWrapper
     from pywinauto.controls.win32_controls import ButtonWrapper
-    ComboBoxWrapper(batch_combobox4).select(" 2019/20")
+    # from pywinauto.controls import uia_controls
+    # from pywinauto.controls import common_controls
 
-    time.sleep(5)
-
-    main_screen = app.window(best_match='National Roads Condition Database - V*')#\
-    #    .child_window(best_match='National Roads Condition Database')
-
-    main_screen.child_window(title="Exit", auto_id="12", control_type="Button").click()
-
-    #main_screen_group = main_screen.child_window(auto_id="11", control_type="Group")
+    main_screen = app.window(best_match='National Roads Condition Database - V*')
 
     main_screen_ProcessCheckbox = main_screen.child_window(title="Process", auto_id="15", control_type="CheckBox")
     main_screen_ProcessCheckbox2 = main_screen.child_window(title="Process", auto_id="16", control_type="CheckBox")
@@ -320,24 +296,89 @@ def fitting(app):
 
     ButtonWrapper(main_screen_ProcessCheckbox).uncheck_by_click()
     ButtonWrapper(main_screen_ProcessCheckbox2).uncheck_by_click()
-    ButtonWrapper(main_screen_ProcessCheckbox3).check_by_click()
+    ButtonWrapper(main_screen_ProcessCheckbox3).uncheck_by_click()
     ButtonWrapper(main_screen_ProcessCheckbox4).uncheck_by_click()
 
-    main_screen.Process.click()
+    logger.info('starting fitting')
+
+    time.sleep(60)
+
+    app.window(best_match='National Roads Condition Database',
+               top_level_only=True).child_window(best_match='Fitting').click()
+
+    time.sleep(10)
+
+    app.window(best_match='National Roads Condition Database', top_level_only=True).print_control_identifiers()
+
+
+    ButtonWrapper(app.window(best_match='National Roads Condition Database') \
+        .child_window(title="Fit unfitted data", auto_id="22", control_type="RadioButton") ) \
+        .check_by_click()
+
+    ButtonWrapper(app.window(best_match='National Roads Condition Database') \
+        .child_window(title="Fit using a grid", auto_id="14", control_type="RadioButton") ) \
+        .check_by_click()
+    # fitting_window.check_button(best_match='Fit using a grid',make_checked)
+
+
+
+    ButtonWrapper(app.window(best_match='National Roads Condition Database') \
+        .child_window(title="SCANNER", auto_id="7", control_type="RadioButton") )\
+        .check_by_click()
+
+    #ComboBoxWrapper(app.window(best_match='National Roads Condition Database') \
+     #   .child_window(title="Year:", auto_id="14", control_type="ComboBox") ) \
+     #   .check_by_click()
+
+    batch_combobox24 = app.window(best_match='National Roads Condition Database - Version*') \
+        .child_window(best_match='Year options:',auto_id="21", control_type="Group") \
+        .child_window(auto_id='24', control_type="ComboBox")
+
+    #batch_combobox1 = app.window(best_match='National Roads Condition Database - Version*') \
+     #   .child_window(best_match='Local Authority Attribute', control_type="Group") \
+    #    .child_window(auto_id='6', control_type="ComboBox").wait('exists enabled visible ready')
+
+    ComboBoxWrapper(batch_combobox24).select(" 2019/20")
+
+    #ComboBoxWrapper(batch_combobox4).select(" 2019/20")
+
+    time.sleep(5)
+
+    #main_screen.child_window(title="SCANNER", auto_id="7").click()
+    main_screen.child_window(title="Exit", auto_id="12", control_type="Button").click()
+
+    time.sleep(15)
+
+    #app.window(best_match='National Roads Condition Database - Version*') \
+    #    .child_window(best_match='Year options', control_type="Group") \
+    #    .child_window(control_type="ComboBox").wait('exists enabled visible ready')
+    # main_screen_group = main_screen.child_window(auto_id="11", control_type="Group")
+
+    # main_screen_ProcessCheckbox = main_screen.child_window(title="Process", auto_id="15", control_type="CheckBox")
+   # main_screen_ProcessCheckbox2 = main_screen.child_window(title="Process", auto_id="16", control_type="CheckBox")
+    #main_screen_ProcessCheckbox3 = main_screen.child_window(title="Process", auto_id="17", control_type="CheckBox")
+    # main_screen_ProcessCheckbox4 = main_screen.child_window(title="Process", auto_id="18", control_type="CheckBox")
+
+    # ButtonWrapper(main_screen_ProcessCheckbox).uncheck_by_click()
+    # ButtonWrapper(main_screen_ProcessCheckbox2).uncheck_by_click()
+    #ButtonWrapper(main_screen_ProcessCheckbox3).check_by_click()
+    # ButtonWrapper(main_screen_ProcessCheckbox4).uncheck_by_click()
+
+    #main_screen.Process.click()
 
     time.sleep(60)
 
     while nrcd_running_check("2"):
         logger.info('waiting for Fitting to complete')
-        time.sleep(60)
+        time.sleep(90)
 
     logger.info('fitting complete')
     return
 
 
-# dataloading(app, file_path_variable)
+#dataloading(app, file_path_variable)
 
-# assign_la(app, file_path_variable)
+#assign_la(app, file_path_variable)
 
 fitting(app)
 
