@@ -161,13 +161,16 @@ def dataloading(app, file_path_variable):
     #app.window(best_match='National Roads Condition Database - Version',
      #          top_level_only=True).print_control_identifiers()
 
-    app.window(best_match='National Roads Condition Database - Version*') \
-        .child_window(best_match='Cancel').wait_not('exists enabled visible ready')
+    #app.window(best_match='National Roads Condition Database - Version*') \
+    #   .child_window(best_match='Cancel').wait_not('exists enabled visible ready')
     # .child_window(bset_match='Cancel',auto_id='1').wait_not('exists enabled visible ready')
 
-    ##while nrcd_running_check("2"):
+    while nrcd_running_check("2"):
+
+        logger.info('waiting for loading to complete')
+        time.sleep(90)
+
     logger.info('loading completed')
-     #   time.sleep(90)
 
     return
 
@@ -182,8 +185,8 @@ def assign_la(app, file_path_variable):
                top_level_only=True).child_window(best_match='Attributes').click()
     time.sleep(15)
 
-    app.window(best_match='National Roads Condition Database',
-               top_level_only=True).print_control_identifiers()
+    #app.window(best_match='National Roads Condition Database',
+    #           top_level_only=True).print_control_identifiers()
 
     #.child_window(title="National Roads Condition Database", control_type="Window") \
     time.sleep(15)
@@ -228,8 +231,8 @@ def assign_la(app, file_path_variable):
     print(la_db_name)
     logger.info('DB name is  ' + la_db_name)
 
-    app.window(best_match='National Roads Condition Database - Version*') \
-        .child_window(best_match='Local Authority Attribute', control_type="Group").print_control_identifiers()
+    #app.window(best_match='National Roads Condition Database - Version*') \
+     #   .child_window(best_match='Local Authority Attribute', control_type="Group").print_control_identifiers()
     time.sleep(15)
 
     # app.window(best_match='National Roads Condition Database - Version *') \
@@ -308,8 +311,7 @@ def fitting(app):
 
     time.sleep(10)
 
-    app.window(best_match='National Roads Condition Database', top_level_only=True).print_control_identifiers()
-
+    #app.window(best_match='National Roads Condition Database', top_level_only=True).print_control_identifiers()
 
     ButtonWrapper(app.window(best_match='National Roads Condition Database') \
         .child_window(title="Fit unfitted data", auto_id="22", control_type="RadioButton") ) \
@@ -345,7 +347,7 @@ def fitting(app):
     time.sleep(5)
 
     #main_screen.child_window(title="SCANNER", auto_id="7").click()
-    main_screen.child_window(title="Exit", auto_id="12", control_type="Button").click()
+    main_screen.child_window(title="OK", auto_id="11", control_type="Button").click()
 
     time.sleep(15)
 
@@ -364,7 +366,7 @@ def fitting(app):
     #ButtonWrapper(main_screen_ProcessCheckbox3).check_by_click()
     # ButtonWrapper(main_screen_ProcessCheckbox4).uncheck_by_click()
 
-    #main_screen.Process.click()
+    main_screen.Process.click()
 
     time.sleep(60)
 
@@ -376,13 +378,67 @@ def fitting(app):
     return
 
 
-#dataloading(app, file_path_variable)
+def assign_urb_rural(app):
 
-#assign_la(app, file_path_variable)
+    from pywinauto.controls.win32_controls import ComboBoxWrapper
+    from pywinauto.controls.win32_controls import ButtonWrapper
+
+    main_screen = app.window(best_match='National Roads Condition Database - V*')
+
+    main_screen_ProcessCheckbox = main_screen.child_window(title="Process", auto_id="15", control_type="CheckBox")
+    main_screen_ProcessCheckbox2 = main_screen.child_window(title="Process", auto_id="16", control_type="CheckBox")
+    main_screen_ProcessCheckbox3 = main_screen.child_window(title="Process", auto_id="17", control_type="CheckBox")
+    main_screen_ProcessCheckbox4 = main_screen.child_window(title="Process", auto_id="18", control_type="CheckBox")
+
+    ButtonWrapper(main_screen_ProcessCheckbox).uncheck_by_click()
+    ButtonWrapper(main_screen_ProcessCheckbox2).uncheck_by_click()
+    ButtonWrapper(main_screen_ProcessCheckbox3).uncheck_by_click()
+    ButtonWrapper(main_screen_ProcessCheckbox4).uncheck_by_click()
+
+    logger.info('starting urban & rural attributes')
+
+    time.sleep(15)
+
+    app.window(best_match='National Roads Condition Database',
+               top_level_only=True).child_window(best_match='Attributes').click()
+
+    time.sleep(10)
+
+    groupcontrol = app.window(best_match='National Roads Condition Database - Version *') \
+        .child_window(title="Attributes Options", auto_id="12",control_type="Group")
+
+    groupcontrol.print_control_identifiers()
+
+    ComboBoxWrapper(groupcontrol.child_window(auto_id="14",
+                                              control_type="ComboBox") ) \
+        .select("SCANNER")
+
+    ComboBoxWrapper(groupcontrol.child_window(auto_id="15",
+                                              control_type="ComboBox")) \
+        .select(" 2019/20")
+
+    app.window(best_match='National Roads Condition Database').child_window(best_match='OK').click()
+
+    main_screen.Process.click()
+
+    time.sleep(60)
+
+    while nrcd_running_check("2"):
+        logger.info('waiting for Urban/Rural Attributes to complete')
+        time.sleep(90)
+
+    logger.info('U/R attributes complete')
+
+    return
+
+
+dataloading(app, file_path_variable)
+
+assign_la(app, file_path_variable)
 
 fitting(app)
 
-# attributes
+assign_urb_rural(app)
 
 # scanner_qa
 
