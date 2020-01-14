@@ -1,18 +1,19 @@
-# import pywinauto
-from pywinauto.application import Application
+#from pywinauto.application import Application
 import glob
-import time
-import pandas as pd
 import logging
-import sys
-from tkinter import filedialog
 import os
-
+import sys
+import time
 import tkinter
+from tkinter import filedialog
+
+import pandas as pd
 
 sys.coinit_flags = 2  # COINIT_APARTMENTTHREADED
 root = tkinter.Tk()
 root.withdraw()
+
+print('Start')
 
 logger = logging.getLogger('autoNRCD')
 logger.setLevel(logging.INFO)
@@ -32,9 +33,8 @@ logger.addHandler(ch)
 curr_dir = os.getcwd()
 
 logger.info('Current directory ' + curr_dir)
-
-file_path_variable = filedialog \
-    .askdirectory(initialdir=curr_dir, title='Please select a directory containing the data')
+print('ask directory')
+file_path_variable = filedialog.askdirectory(initialdir=curr_dir, title='Please select a directory containing the data')
 
 if len(file_path_variable) > 0:
     logger.info('Working with ' + file_path_variable)
@@ -60,7 +60,7 @@ def nrcd_running_check(number_of_windows: str):
 
 print("\nfile_path_variable = ", file_path_variable)
 
-# from pywinauto.application import Application
+from pywinauto.application import Application
 
 app = Application(backend="uia").start('C:/Program Files (x86)/NRCD/NRCD.exe')
 
@@ -74,6 +74,8 @@ time.sleep(15)
 
 app.window(best_match='', top_level_only=True) \
     .child_window(best_match='Enter System').click()
+
+time.sleep(60)
 
 
 # Loading section
@@ -190,12 +192,12 @@ def assign_la(app, file_path_variable):
     #   .click()
 
     filename = file_path_variable + '/BatchList.txt'
-    # print("\nfilename is ", filename)
+    print("\nfilename is ", filename)
     logger.info('File name is ' + filename)
     filename = filename.replace('/', '\\')
     time.sleep(15)
     app4 = Application(backend="uia").connect(title_re='Select a batch file', visible_only=True)
-    #print("\nConnect app4 filename is ", filename)
+    print("\nConnect app4 filename is ", filename)
     logger.info('Connecting to the batch file selection with ' + filename)
     time.sleep(30)
     app4.window(title_re='Select a batch file').type_keys(filename, with_spaces=True)
@@ -246,7 +248,7 @@ def assign_la(app, file_path_variable):
 
     ComboBoxWrapper(batch_combobox2).select(" 2019/20")
 
-    time.sleep(5)
+    time.sleep(15)
 
     # print(survey_year)
 
@@ -262,7 +264,7 @@ def assign_la(app, file_path_variable):
     app.window(best_match='National Roads Condition Database - Version*') \
         .child_window(title='NRCD', control_type="Window") \
         .child_window(title="OK", auto_id="2", control_type="Button") \
-        .wait("exists ready", timeout=90, retry_interval=60)
+        .wait("exists ready", timeout=120, retry_interval=60)
 
     # app.window(best_match='National Roads Condition Database - Version*') \
     # .child_window(title='NRCD', control_type="Window") \
@@ -553,7 +555,7 @@ def scanner_qa(app, file_path_variable):
 
     # connect to the output file name selection window and enter the name from above and save the file.
 
-    app5 = Application(backend="uia").connect(title_re='Select a batch file', visible_only=True)
+    app5 = Application(backend="uia").connect(title_re='Select an output file name', visible_only=True)
     print("\nConnect app5 filename is ", output_file_name)
     app5.window(title_re='Select an output file name').type_keys(filename, with_spaces=True)
     app5.window(title_re='Select an output file name').Save.click()
