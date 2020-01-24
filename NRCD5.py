@@ -156,7 +156,7 @@ def dataloading(app, file_path_variable):
     app.window(best_match='National Roads Condition Database - Version',
                top_level_only=True).child_window(best_match='Process').click()
 
-    logger.info('Starting loading for ' + filename[0])
+    logger.info('Starting loading with ' + filename[0])
 
     time.sleep(60)
 
@@ -199,7 +199,7 @@ def assign_la(app, file_path_variable):
     app4 = Application(backend="uia").connect(title_re='Select a batch file', visible_only=True)
     print("\nConnect app4 filename is ", filename)
     logger.info('Connecting to the batch file selection with ' + filename)
-    time.sleep(30)
+    time.sleep(60)
     app4.window(title_re='Select a batch file').type_keys(filename, with_spaces=True)
     app4.window(title_re='Select a batch file').type_keys('%o')
     del app4
@@ -211,6 +211,7 @@ def assign_la(app, file_path_variable):
     # print(local_authority)
 
     logger.info('starting to assign attributes for ' + local_authority)
+
     # Load the human name to database name csv table
 
     lookup_table = '//trllimited/data/INF_ScannerQA/Audit_Reports/Tools/LA_to_NRCD_Name.csv'
@@ -258,19 +259,12 @@ def assign_la(app, file_path_variable):
 
     logger.info('waiting for LA assignment to complete')
 
-    # while nrcd_running_check("2"):
-    #    logger.info('waiting for loading to finish')
-    #    time.sleep(60)
+#  the following contains 10000 seconds. This is to stop the wait timing out, it retries each 90 secs
+#  but the attributes should be finished in under 6 hours... or even one hour.
     app.window(best_match='National Roads Condition Database - Version*') \
         .child_window(title='NRCD', control_type="Window") \
         .child_window(title="OK", auto_id="2", control_type="Button") \
-        .wait("exists ready", timeout=120, retry_interval=60)
-
-    # app.window(best_match='National Roads Condition Database - Version*') \
-    # .child_window(title='NRCD', control_type="Window") \
-    # .child_window(title="OK", auto_id="2", control_type="Button") \
-    # .child_window(title="OK", auto_id="2", control_type="Button") \
-    #   .wait("exists enabled visible ready")
+        .wait("exists ready", timeout=10000, retry_interval=90)
 
     app.window(best_match='National Roads Condition Database - Version*') \
         .child_window(title='NRCD', control_type="Window") \
@@ -302,7 +296,7 @@ def fitting(app):
 
     logger.info('starting fitting')
 
-    time.sleep(60)
+    time.sleep(30)
 
     app.window(best_match='National Roads Condition Database',
                top_level_only=True).child_window(best_match='Fitting').click()
@@ -553,11 +547,13 @@ def scanner_qa(app, file_path_variable):
 
     print(output_file_name)
 
+    time.sleep(60)
+
     # connect to the output file name selection window and enter the name from above and save the file.
 
     app5 = Application(backend="uia").connect(title_re='Select an output file name', visible_only=True)
     print("\nConnect app5 filename is ", output_file_name)
-    app5.window(title_re='Select an output file name').type_keys(filename, with_spaces=True)
+    app5.window(title_re='Select an output file name').type_keys(output_file_name, with_spaces=True)
     app5.window(title_re='Select an output file name').Save.click()
     del app5
 
