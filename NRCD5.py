@@ -120,9 +120,10 @@ def dataloading(app, file_path_variable):
         app.window(best_match='National Roads Condition Database Version *', top_level_only=True) \
             .child_window(best_match='Create Batch file').click()
 
-        time.sleep(15)
+        time.sleep(30)
 
-        app.Dialog.OK.click()
+        app.window(best_match='National Roads Condition Database Version *', top_level_only=True) \
+            .child_window(best_match='OK').click()
 
         time.sleep(30)
         app3 = Application(backend="uia").connect(title='Create a file in the required directory')
