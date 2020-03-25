@@ -47,8 +47,10 @@ def nrcd_running_check(number_of_windows: str):
 
     running_apps = tb.Taskbar.child_window(title="Running applications", control_type="ToolBar")
 
-    nrcd_windows = "NRCD - " + number_of_windows + " running windows"
-    # print(nrcd_windows)
+    nrcd_windows = "NRCD.exe - " + number_of_windows + " running windows"
+    print(nrcd_windows)
+
+    # print([w.window_text() for w in running_apps.children()])
 
     if nrcd_windows in [w.window_text() for w in running_apps.children()]:
         wait_flag = True
@@ -101,26 +103,26 @@ def dataloading(app, file_path_variable):
         time.sleep(15)
         app2 = Application(backend="uia").connect(title_re='Select a batch file', visible_only=True)
         print("\nConnect app2 filename is ", filename)
-        #edit_text_box1 = app2.window(title_re='Select a batch file') \
+        # edit_text_box1 = app2.window(title_re='Select a batch file') \
         #    .child_window(best_match="File name:")
-        #from pywinauto.controls.win32_controls import EditWrapper
-        #EditWrapper(edit_text_box1).set_text(filename)
+        # from pywinauto.controls.win32_controls import EditWrapper
+        # EditWrapper(edit_text_box1).set_text(filename)
         # app2.window(title_re='Select a batch file').type_keys(filename, with_spaces=True)
         app2.window(title_re='Select a batch file').File_name_Edit.set_text(filename)
         app2.window(title_re='Select a batch file').print_control_identifiers()
-        #app2.window(title_re='Select a batch file').type_keys('%o')
+        # app2.window(title_re='Select a batch file').type_keys('%o')
 
         batch_splitbutton2 = app2.window(title_re='Select a batch file') \
             .child_window(auto_id='1', control_type="SplitButton")
         from pywinauto.controls.win32_controls import ButtonWrapper
         ButtonWrapper(batch_splitbutton2).click()
 
-        #app2.window(title_re='Select a batch file').OpenSplitButton.click_input
-        #app2.window(title_re='Select a batch file') \
-         #   .child_window(title='Pane1') \
-         #   .child_window(title='Open', auto_id=1).click()
+        # app2.window(title_re='Select a batch file').OpenSplitButton.click_input
+        # app2.window(title_re='Select a batch file') \
+        #   .child_window(title='Pane1') \
+        #   .child_window(title='Open', auto_id=1).click()
         #    .child_window(title='Open', auto_id=1, control_type="UIA_SplitButtonControlTypeId").click()
-        #.child_window(title='SplitButton6').click()
+        # .child_window(title='SplitButton6').click()
 
         del app2
     else:
@@ -156,17 +158,18 @@ def dataloading(app, file_path_variable):
         #    .child_window(best_match="File name:")
         # from pywinauto.controls.win32_controls import EditWrapper
         # EditWrapper(edit_text_box2).set_text(filename)
-        app3.window(title_re='Create a file in the required directory').File_name_Edit.set_text(filename[0])
+        app3.window(title_re='Create a file in the required directory') \
+            .File_name_Edit.set_text(filename[0])
         # app3.window(title_re='Create a file in the required directory').type_keys(filename[0], with_spaces=True)
         app3.window(title_re='Create a file in the required directory').print_control_identifiers()
-        #app3.window(title_re='Create a file in the required directory') \
-         #   .Open3_SplitButton.click()
+        # app3.window(title_re='Create a file in the required directory') \
+        # .Open3_SplitButton.click()
         batch_splitbutton1 = app3.window(title_re='Create a file in the required directory') \
             .child_window(auto_id='1', control_type="SplitButton")
         from pywinauto.controls.win32_controls import ButtonWrapper
         ButtonWrapper(batch_splitbutton1).click()
-            #.child_window(title="Open", auto_id="1", control_type="SplitButton")
-            # .child_window(best_match='Open3').click()
+        # child_window(title="Open", auto_id="1", control_type="SplitButton")
+        # .child_window(best_match='Open3').click()
         del app3
 
     # if the file_path_variable directory string contains WDM
@@ -191,14 +194,17 @@ def dataloading(app, file_path_variable):
 
     # back on the main screen, click the process radio button then the actual 'Process' button
 
-    app.window(best_match='National Roads Condition Database - Version',
+    app.window(best_match='National Roads Condition Database - Version *',
                top_level_only=True).child_window(best_match='Process').click()
+
+    print(filename)
 
     logger.info('Starting loading with ' + filename[0])
 
     time.sleep(60)
 
-    # wait for the loading to finish
+    # wait for the loading to finish. It checks the number of windows open for NECD.exe. If these are less than
+    # two the section is complete, otherwise it loops.
 
     while nrcd_running_check("2"):
         logger.info('waiting for loading to complete')
@@ -238,11 +244,13 @@ def assign_la(app, file_path_variable):
     print("\nConnect app4 filename is ", filename)
     logger.info('Connecting to the batch file selection with ' + filename)
     time.sleep(60)
-    #app4.window(title_re='Select a batch file').File_name_Edit.set_text(filename)
+    # app4.window(title_re='Select a batch file').File_name_Edit.set_text(filename)
     # app4.window(title_re='Select a batch file').type_keys(filename, with_spaces=True)
     app4.window(title_re='Select a batch file').print_control_identifiers()
     app4.window(title_re='Select a batch file').File_name_Edit.set_text(filename)
-    #app4.window(title_re='Select a batch file').type_keys('%o')
+    app4.window(title_re='Select a batch file').print_control_identifiers()
+
+    # app4.window(title_re='Select a batch file').type_keys('%o')
     batch_splitbutton1 = app4.window(title_re='Select a batch file') \
         .child_window(auto_id='1', control_type="SplitButton")
     from pywinauto.controls.win32_controls import ButtonWrapper
@@ -400,13 +408,17 @@ def fitting(app):
 
     time.sleep(60)
 
+    # wait for the loading to finish. It checks the number of windows open for NECD.exe. If these are less than
+    # two the section is complete, otherwise it loops.
+
     while nrcd_running_check("2"):
         logger.info('waiting for Fitting to complete')
         time.sleep(90)
 
     logger.info('fitting complete')
 
-    return # to the main code block.
+    # to the main code block.
+    return
 
 
 def assign_urb_rural(app):
@@ -472,6 +484,9 @@ def assign_urb_rural(app):
     time.sleep(60)
 
     # after an appropriate time start waiting for the processing to finish.
+
+    # wait for the window to close. It checks the number of windows open for NECD.exe. If these are less than
+    # two the section is complete, otherwise it loops.
 
     while nrcd_running_check("2"):
         logger.info('waiting for Urban/Rural Attributes to complete')
@@ -570,7 +585,8 @@ def scanner_qa(app, file_path_variable):
 
     # build output file name.
 
-    output_file_name = os.path.normpath("//trllimited/data/INF_ScannerQA/Audit_Reports/NRCD Data"
+    # output_file_name = os.path.normpath("//trllimited/data/INF_ScannerQA/Audit_Reports/NRCD Data"
+    output_file_name = os.path.normpath("C:/Users/rjaques/temp"
                                         + "/" + nation +
                                         "/" + local_authority + "_" + year + ".csv")
 
