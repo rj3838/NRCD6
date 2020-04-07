@@ -586,9 +586,7 @@ def scanner_qa(app, file_path_variable):
     # build output file name.
 
     # output_file_name = os.path.normpath("//trllimited/data/INF_ScannerQA/Audit_Reports/NRCD Data"
-    output_file_name = os.path.normpath("C:/Users/rjaques/temp"
-                                        + "/" + nation +
-                                        "/" + local_authority + "_" + year + ".csv")
+    output_file_name = os.path.normpath("C:/Users/rjaques/temp/Data/" + local_authority + "_" + year + ".csv")
 
     # add the year combination (year and '-' and  2 digit next year so
     # convert year string to numeric, add one, convert back to string and use the last 2 chars
@@ -614,30 +612,54 @@ def scanner_qa(app, file_path_variable):
 
     app5 = Application(backend="uia").connect(title_re='Select an output file name', visible_only=True)
     print("\nConnect app5 filename is ", output_file_name)
-    app5.window(title_re='Select an output file name').type_keys(output_file_name, with_spaces=True)
-    app5.window(title_re='Select an output file name').Save.click()
+    time.sleep(30)
+    # app5.window(title_re='Select an output file name').print_control_identifiers()
+    app5.window(title_re='Select an output file name').File_name_Edit.set_text(output_file_name)
+    # app5.window(title_re='Select an output file name').print_control_identifiers()
+
+    # app4.window(title_re='Select a batch file').type_keys('%o')
+    batch_splitbutton1 = app5.window(title_re='Select an output file name') \
+        .child_window(title='Save', auto_id='1', control_type="Button")
+    from pywinauto.controls.win32_controls import ButtonWrapper
+    ButtonWrapper(batch_splitbutton1).click()
+
+    # app5.window(title_re='Select an output file name').type_keys(output_file_name, with_spaces=True)
+    # app5.window(title_re='Select an output file name').Save.click()
     del app5
 
     time.sleep(60)
 
+    logger.info('waiting for ' + local_authority + ' QA output to finish')
+
+    app.window(best_match='National Roads Condition Database - Version *') \
+        .child_window(title="Scanner QA output complete") \
+        .print_control_identifiers()
+
+    app.window(best_match='National Roads Condition Database - Version *') \
+        .child_window(title="Scanner QA output complete") \
+        .wait("exists", timeout=100, retry_interval=60)
+
+    app.window(best_match='National Roads Condition Database - Version *') \
+        .child_window(title="NRCD").OK.click()
+
     # Wait patiently
 
-    while nrcd_running_check("2"):
-        logger.info('waiting for ' + local_authority + 'QA output to finish')
-        time.sleep(90)
+    # while nrcd_running_check("2"):
+    # logger.info('waiting for ' + local_authority + 'QA output to finish')
+     # time.sleep(90)
 
     logger.info(local_authority + ' QA output complete')
 
     return  # back to main code block
 
 
-dataloading(app, file_path_variable)
+#dataloading(app, file_path_variable)
 
-assign_la(app, file_path_variable)
+#assign_la(app, file_path_variable)
 
-fitting(app)
+#fitting(app)
 
-assign_urb_rural(app)
+#assign_urb_rural(app)
 
 scanner_qa(app, file_path_variable)
 
