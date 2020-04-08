@@ -632,12 +632,12 @@ def scanner_qa(app, file_path_variable):
     logger.info('waiting for ' + local_authority + ' QA output to finish')
 
     app.window(best_match='National Roads Condition Database - Version *') \
-        .child_window(title="Scanner QA output complete") \
-        .print_control_identifiers()
+        .child_window(title="NRCD") \
+        .wait("exists ready", timeout=10000, retry_interval=60)
 
     app.window(best_match='National Roads Condition Database - Version *') \
-        .child_window(title="Scanner QA output complete") \
-        .wait("exists", timeout=100, retry_interval=60)
+        .child_window(title="NRCD") \
+        .print_control_identifiers()
 
     app.window(best_match='National Roads Condition Database - Version *') \
         .child_window(title="NRCD").OK.click()
@@ -664,3 +664,7 @@ def scanner_qa(app, file_path_variable):
 scanner_qa(app, file_path_variable)
 
 logger.info('End of the run')
+
+app.window(best_match='National Roads Condition Database - Version *').Exit.click()
+
+sys.exit()
