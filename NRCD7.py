@@ -1,4 +1,4 @@
-#from pywinauto.application import Application
+# from pywinauto.application import Application
 import glob
 import logging
 import os
@@ -6,38 +6,11 @@ import sys
 import time
 import tkinter
 from tkinter import filedialog
-import pywinauto
+# import pywinauto
 import pandas as pd
-
-sys.coinit_flags = 2  # COINIT_APARTMENTTHREADED
-root = tkinter.Tk()
-root.withdraw()
-
-print('Start')
-
-logger = logging.getLogger('autoNRCD')
-logger.setLevel(logging.INFO)
-
-# create console handler and set level to debug
-ch = logging.StreamHandler()
-ch.setLevel(logging.DEBUG)
-
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-
-# add formatter to ch
-ch.setFormatter(formatter)
-
-# add ch to logger
-logger.addHandler(ch)
-
-curr_dir = os.getcwd()
-
-logger.info('Current directory ' + curr_dir)
-print('ask directory')
 
 
 def fun_directory_selector(request_string: str, selected_directory_list: list, search_directory):
-
     directory_path_string = filedialog.askdirectory(initialdir=search_directory, title=request_string)
 
     if len(directory_path_string) > 0:
@@ -200,54 +173,6 @@ def data_loading(app, file_path_variable):
     return
 
 
-root_win = tkinter.Tk()
-root.withdraw()
-
-directories_to_process = list()
-
-directories_to_process = fun_directory_selector('Please select a directory containing the data',
-                                                directories_to_process,
-                                                curr_dir)
-
-print(directories_to_process,sep='\n')
-print("\n",directories_to_process)
-
-if len(directories_to_process[0]) > 0:
-
-    file_path_variable = str()
-
-    for file_path_variable in directories_to_process:
-        logger.info('Working with ' + file_path_variable)
-
-        #  file_path_variable = filedialog.askdirectory(initialdir=curr_dir, title='Please select a directory containing the data')
-
-        if len(file_path_variable) > 0:
-            logger.info('Working with ' + file_path_variable)
-
-
-
-
-
-        print("\nfile_path_variable = ", file_path_variable)
-
-        from pywinauto.application import Application
-
-        app = Application(backend="uia").start('C:/Users/rjaques/Software/NRCD/Current Version/NRCD.exe')
-
-        app.window(best_match='National Roads Condition Database',
-                   top_level_only=True).child_window(best_match='SCANNER').click()
-
-        time.sleep(5)
-
-        # app.window(best_match='', top_level_only=True) \
-        # .print_control_identifiers()
-
-        app.window(best_match='', top_level_only=True) \
-            .child_window(best_match='Enter System').click()
-
-        time.sleep(30)
-
-
 def assign_la(app, file_path_variable):
     logger.info('starting local authority assignment')
 
@@ -358,6 +283,7 @@ def assign_la(app, file_path_variable):
         .child_window(title="Exit", auto_id="11", control_type="Button").click()
 
     return
+
 
 def fitting(app):
     from pywinauto.controls.win32_controls import ComboBoxWrapper
@@ -586,7 +512,7 @@ def scanner_qa(app, file_path_variable):
     groupcontrol = app.window(best_match='National Roads Condition Database - Version *') \
         .child_window(title="Survey QA Options", auto_id="9", control_type="Group")
 
-    #groupcontrol.print_control_identifiers()
+    # groupcontrol.print_control_identifiers()
 
     # exclude the previous year and the U roads (uncheck_by_click) then select the LA abd survey year.
 
@@ -682,32 +608,92 @@ def scanner_qa(app, file_path_variable):
 
     return  # back to main code block
 
+sys.coinit_flags = 2  # COINIT_APARTMENTTHREADED
+root = tkinter.Tk()
+root.withdraw()
 
-    # Loading section
+print('Start')
+
+logger = logging.getLogger('autoNRCD')
+logger.setLevel(logging.INFO)
+
+# create console handler and set level to debug
+ch = logging.StreamHandler()
+ch.setLevel(logging.DEBUG)
+
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+# add formatter to ch
+ch.setFormatter(formatter)
+
+# add ch to logger
+logger.addHandler(ch)
+
+curr_dir = os.getcwd()
+
+logger.info('Current directory ' + curr_dir)
+print('ask directory')
+
+# root_win = tkinter.Tk()
+# root.withdraw()
+
+directories_to_process = list()
+
+directories_to_process: list = fun_directory_selector('Please select a directory containing the data',
+                                                      directories_to_process,
+                                                      curr_dir)
+# print(directories_to_process, sep='\n')
+
+# noinspection DuplicatedCode
+print("\n", directories_to_process)
+
+if len(directories_to_process[0]) > 0:
+
+    file_path_variable = str()
+
+    for file_path_variable in directories_to_process:
+        if len(file_path_variable) > 0:
+            logger.info('Working with ' + file_path_variable)
+
+
+# logger.info('Working with ' + file_path_variable)
+
+#       file_path_variable = filedialog.askdirectory(initialdir=curr_dir,
+#               title='Please select a directory containing the data')
 
 
 
+        print("\nfile_path_variable = ", file_path_variable)
 
-# First attributes section (this sets the local authority)
+        from pywinauto.application import Application
 
+        app = Application(backend="uia").start('C:/Users/rjaques/Software/NRCD/Current Version/NRCD.exe')
 
+        app.window(best_match='National Roads Condition Database',
+                   top_level_only=True).child_window(best_match='SCANNER').click()
 
+        time.sleep(5)
 
+        # app.window(best_match='', top_level_only=True) \
+        # .print_control_identifiers()
 
+        app.window(best_match='', top_level_only=True) \
+            .child_window(best_match='Enter System').click()
 
+        time.sleep(30)
 
-data_loading(app, file_path_variable)
+        data_loading(app, file_path_variable)
 
-assign_la(app, file_path_variable)
+        assign_la(app, file_path_variable)
 
-fitting(app)
+        fitting(app)
 
-assign_urb_rural(app)
+        assign_urb_rural(app)
 
-scanner_qa(app, file_path_variable)
+        scanner_qa(app, file_path_variable)
 
-logger.info('End of the run')
+        logger.info('End of the run')
 
-app.window(best_match='National Roads Condition Database - Version *').Exit.click()
+        app.window(best_match='National Roads Condition Database - Version *').Exit.click()
 
 sys.exit()
