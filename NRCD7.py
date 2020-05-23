@@ -180,10 +180,10 @@ def assign_la(app, file_path_variable):
                top_level_only=True).child_window(best_match='Attributes').click()
     time.sleep(15)
 
-    groupcontrol = app.window(best_match='National Roads Condition Database - Version *') \
+    group_control = app.window(best_match='National Roads Condition Database - Version *') \
         .child_window(title="Local Authority Attribute", auto_id="3", control_type="Group")
 
-    groupcontrol.child_window(title="Select Batch File", auto_id="7", control_type="Button") \
+    group_control.child_window(title="Select Batch File", auto_id="7", control_type="Button") \
         .click()
 
     # app.window(best_match='National Roads Condition Database - Version *') \
@@ -229,7 +229,7 @@ def assign_la(app, file_path_variable):
 
     la_db_name: str = la_lookup_table.loc[local_authority, "NRCD_Name"]
 
-    survey_year = "2019/20"
+    # survey_year = "2019/20"
     # print(la_db_name)
     logger.info('DB name for the LA is ' + la_db_name)
 
@@ -291,17 +291,17 @@ def fitting(app):
     # from pywinauto.controls import uia_controls
     # from pywinauto.controls import common_controls
 
-    main_screen = app.window(best_match='National Roads Condition Database - V*')
+    # main_screen = app.window(best_match='National Roads Condition Database - V*')
 
-    main_screen_ProcessCheckbox = main_screen.child_window(title="Process", auto_id="15", control_type="CheckBox")
-    main_screen_ProcessCheckbox2 = main_screen.child_window(title="Process", auto_id="16", control_type="CheckBox")
-    main_screen_ProcessCheckbox3 = main_screen.child_window(title="Process", auto_id="17", control_type="CheckBox")
-    main_screen_ProcessCheckbox4 = main_screen.child_window(title="Process", auto_id="18", control_type="CheckBox")
+    main_screen_process_checkbox = main_screen.child_window(title="Process", auto_id="15", control_type="CheckBox")
+    main_screen_process_checkbox2 = main_screen.child_window(title="Process", auto_id="16", control_type="CheckBox")
+    main_screen_process_checkbox3 = main_screen.child_window(title="Process", auto_id="17", control_type="CheckBox")
+    main_screen_process_checkbox4 = main_screen.child_window(title="Process", auto_id="18", control_type="CheckBox")
 
-    ButtonWrapper(main_screen_ProcessCheckbox).uncheck_by_click()
-    ButtonWrapper(main_screen_ProcessCheckbox2).uncheck_by_click()
-    ButtonWrapper(main_screen_ProcessCheckbox3).uncheck_by_click()
-    ButtonWrapper(main_screen_ProcessCheckbox4).uncheck_by_click()
+    ButtonWrapper(main_screen_process_checkbox).uncheck_by_click()
+    ButtonWrapper(main_screen_process_checkbox2).uncheck_by_click()
+    ButtonWrapper(main_screen_process_checkbox3).uncheck_by_click()
+    ButtonWrapper(main_screen_process_checkbox4).uncheck_by_click()
 
     logger.info('starting fitting')
 
@@ -347,15 +347,16 @@ def fitting(app):
     #    .child_window(control_type="ComboBox").wait('exists enabled visible ready')
     # main_screen_group = main_screen.child_window(auto_id="11", control_type="Group")
 
-    # main_screen_ProcessCheckbox = main_screen.child_window(title="Process", auto_id="15", control_type="CheckBox")
-    # main_screen_ProcessCheckbox2 = main_screen.child_window(title="Process", auto_id="16", control_type="CheckBox")
+    # main_screen_main_screen_process_checkbox = main_screen.child_window(title="Process",
+    # auto_id="15", control_type="CheckBox")
+    # main_screen_process_checkbox2 = main_screen.child_window(title="Process", auto_id="16", control_type="CheckBox")
     # main_screen_ProcessCheckbox3 = main_screen.child_window(title="Process", auto_id="17", control_type="CheckBox")
-    # main_screen_ProcessCheckbox4 = main_screen.child_window(title="Process", auto_id="18", control_type="CheckBox")
+    # main_screen_process_checkbox4 = main_screen.child_window(title="Process", auto_id="18", control_type="CheckBox")
 
-    # ButtonWrapper(main_screen_ProcessCheckbox).uncheck_by_click()
-    # ButtonWrapper(main_screen_ProcessCheckbox2).uncheck_by_click()
+    # ButtonWrapper(main_screen_main_screen_process_checkbox).uncheck_by_click()
+    # ButtonWrapper(main_screen_process_checkbox2).uncheck_by_click()
     # ButtonWrapper(main_screen_ProcessCheckbox3).check_by_click()
-    # ButtonWrapper(main_screen_ProcessCheckbox4).uncheck_by_click()
+    # ButtonWrapper(main_screen_process_checkbox4).uncheck_by_click()
 
     # the 'process' click box is already set so click on the main scree Process button at the bottom
     # then wait for the fitting to complete.
@@ -381,19 +382,19 @@ def assign_urb_rural(app):
     from pywinauto.controls.win32_controls import ComboBoxWrapper
     from pywinauto.controls.win32_controls import ButtonWrapper
 
-    main_screen = app.window(best_match='National Roads Condition Database - V*')
+    # main_screen = app.window(best_match='National Roads Condition Database - V*')
 
     # on the main screen turn all the check boxes off.
 
-    main_screen_ProcessCheckbox = main_screen.child_window(title="Process", auto_id="15", control_type="CheckBox")
-    main_screen_ProcessCheckbox2 = main_screen.child_window(title="Process", auto_id="16", control_type="CheckBox")
-    main_screen_ProcessCheckbox3 = main_screen.child_window(title="Process", auto_id="17", control_type="CheckBox")
-    main_screen_ProcessCheckbox4 = main_screen.child_window(title="Process", auto_id="18", control_type="CheckBox")
+    main_screen_process_checkbox = main_screen.child_window(title="Process", auto_id="15", control_type="CheckBox")
+    main_screen_process_checkbox2 = main_screen.child_window(title="Process", auto_id="16", control_type="CheckBox")
+    main_screen_process_checkbox3 = main_screen.child_window(title="Process", auto_id="17", control_type="CheckBox")
+    main_screen_process_checkbox4 = main_screen.child_window(title="Process", auto_id="18", control_type="CheckBox")
 
-    ButtonWrapper(main_screen_ProcessCheckbox).uncheck_by_click()
-    ButtonWrapper(main_screen_ProcessCheckbox2).uncheck_by_click()
-    ButtonWrapper(main_screen_ProcessCheckbox3).uncheck_by_click()
-    ButtonWrapper(main_screen_ProcessCheckbox4).uncheck_by_click()
+    ButtonWrapper(main_screen_process_checkbox).uncheck_by_click()
+    ButtonWrapper(main_screen_process_checkbox2).uncheck_by_click()
+    ButtonWrapper(main_screen_process_checkbox3).uncheck_by_click()
+    ButtonWrapper(main_screen_process_checkbox4).uncheck_by_click()
 
     logger.info('starting urban & rural attributes')
 
@@ -462,17 +463,15 @@ def scanner_qa(app, file_path_variable):
 
     # turn all the process check boxes off.
 
-    main_screen_ProcessCheckbox = main_screen.child_window(title="Process", auto_id="15", control_type="CheckBox")
-    main_screen_ProcessCheckbox2 = main_screen.child_window(title="Process", auto_id="16", control_type="CheckBox")
-    main_screen_ProcessCheckbox3 = main_screen.child_window(title="Process", auto_id="17", control_type="CheckBox")
-    main_screen_ProcessCheckbox4 = main_screen.child_window(title="Process", auto_id="18", control_type="CheckBox")
+    main_screen_process_checkbox = main_screen.child_window(title="Process", auto_id="15", control_type="CheckBox")
+    main_screen_process_checkbox2 = main_screen.child_window(title="Process", auto_id="16", control_type="CheckBox")
+    main_screen_process_checkbox3 = main_screen.child_window(title="Process", auto_id="17", control_type="CheckBox")
+    main_screen_process_checkbox4 = main_screen.child_window(title="Process", auto_id="18", control_type="CheckBox")
 
-    ButtonWrapper(main_screen_ProcessCheckbox).uncheck_by_click()
-    ButtonWrapper(main_screen_ProcessCheckbox2).uncheck_by_click()
-    ButtonWrapper(main_screen_ProcessCheckbox3).uncheck_by_click()
-    ButtonWrapper(main_screen_ProcessCheckbox4).uncheck_by_click()
-
-    logger.info('starting Scanner QA output')
+    ButtonWrapper(main_screen_process_checkbox).uncheck_by_click()
+    ButtonWrapper(main_screen_process_checkbox2).uncheck_by_click()
+    ButtonWrapper(main_screen_process_checkbox3).uncheck_by_click()
+    ButtonWrapper(main_screen_process_checkbox4).uncheck_by_click()
 
     filename = file_path_variable.replace('/', '\\')
     print(filename)
@@ -482,11 +481,12 @@ def scanner_qa(app, file_path_variable):
 
     local_authority = filename.split("\\")[-1]
     nation = filename.split("\\")[-2]
-    year = re.search('[1-2][0-9]{3}', filename).group(0)
+    year = re.search('[1-2][0-9]{3}', filename).group(0)  # regex search
 
-    print(local_authority)
+    # logger.info('starting Scanner QA output for ' + local_authority)
+    # print(local_authority)
     print(nation)
-    print(year)
+    # print(year)
 
     logger.info('starting SCANNER QA for ' + local_authority)
 
@@ -509,33 +509,31 @@ def scanner_qa(app, file_path_variable):
         .child_window(title="Survey QA Options", auto_id="9", control_type="Group") \
         .wait("exists ready", timeout=90, retry_interval=60)
 
-    groupcontrol = app.window(best_match='National Roads Condition Database - Version *') \
+    group_control = app.window(best_match='National Roads Condition Database - Version *') \
         .child_window(title="Survey QA Options", auto_id="9", control_type="Group")
 
     # groupcontrol.print_control_identifiers()
 
     # exclude the previous year and the U roads (uncheck_by_click) then select the LA abd survey year.
 
-    ButtonWrapper(groupcontrol
-                  .child_window(title="Include Previous Year", control_type="CheckBox")) \
-        .uncheck_by_click()
+    ButtonWrapper(group_control
+                  .child_window(title="Include Previous Year",
+                                control_type="CheckBox")).uncheck_by_click()
 
-    ButtonWrapper(groupcontrol
-                  .child_window(title="U Roads", control_type="CheckBox")) \
-        .uncheck_by_click()
+    ButtonWrapper(group_control
+                  .child_window(title="U Roads",
+                                control_type="CheckBox")).uncheck_by_click()
 
-    ComboBoxWrapper(groupcontrol.child_window(auto_id="24",
-                                              control_type="ComboBox")) \
-        .select(la_db_name)
+    ComboBoxWrapper(group_control.child_window(auto_id="24",
+                                               control_type="ComboBox")).select(la_db_name)
 
-    ComboBoxWrapper(groupcontrol.child_window(auto_id="25",
-                                              control_type="ComboBox")) \
-        .select(" 2019/20")
+    ComboBoxWrapper(group_control.child_window(auto_id="25",
+                                               control_type="ComboBox")).select(" 2019/20")
 
     # Export the data
 
-    groupcontrol.child_window(auto_id="26",
-                              title="Export QA Data").click()
+    group_control.child_window(auto_id="26",
+                               title="Export QA Data").click()
 
     # print("Waiting for a user !")
 
@@ -574,10 +572,10 @@ def scanner_qa(app, file_path_variable):
     # app5.window(title_re='Select an output file name').print_control_identifiers()
 
     # app4.window(title_re='Select a batch file').type_keys('%o')
-    batch_splitbutton1 = app5.window(title_re='Select an output file name') \
+    batch_split_button1 = app5.window(title_re='Select an output file name') \
         .child_window(title='Save', auto_id='1', control_type="Button")
     from pywinauto.controls.win32_controls import ButtonWrapper
-    ButtonWrapper(batch_splitbutton1).click()
+    ButtonWrapper(batch_split_button1).click()
 
     # app5.window(title_re='Select an output file name').type_keys(output_file_name, with_spaces=True)
     # app5.window(title_re='Select an output file name').Save.click()
@@ -608,7 +606,9 @@ def scanner_qa(app, file_path_variable):
 
     return  # back to main code block
 
+
 sys.coinit_flags = 2  # COINIT_APARTMENTTHREADED
+
 root = tkinter.Tk()
 root.withdraw()
 
@@ -655,15 +655,10 @@ if len(directories_to_process[0]) > 0:
         if len(file_path_variable) > 0:
             logger.info('Working with ' + file_path_variable)
 
-
 # logger.info('Working with ' + file_path_variable)
-
-#       file_path_variable = filedialog.askdirectory(initialdir=curr_dir,
-#               title='Please select a directory containing the data')
-
-
-
-        print("\nfile_path_variable = ", file_path_variable)
+# file_path_variable = filedialog.askdirectory(initialdir=curr_dir,
+# title='Please select a directory containing the data')
+# print("\nfile_path_variable = ", file_path_variable)
 
         from pywinauto.application import Application
 
@@ -673,6 +668,7 @@ if len(directories_to_process[0]) > 0:
                    top_level_only=True).child_window(best_match='SCANNER').click()
 
         time.sleep(5)
+        main_screen = app.window(best_match='National Roads Condition Database - V*')
 
         # app.window(best_match='', top_level_only=True) \
         # .print_control_identifiers()
