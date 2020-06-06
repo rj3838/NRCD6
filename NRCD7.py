@@ -145,6 +145,8 @@ def data_loading(app, file_path_variable):
 
     # ComboBoxWrapper(group_control.child_window(auto_id="24",
     #                                            control_type="ComboBox")).select(la_db_name)
+    app.window(best_match='National Roads Condition Database',
+               top_level_only=True).print_control_identifiers()
 
     app.window(best_match='National Roads Condition Database',
                top_level_only=True).child_window(best_match='Survey Contractor')\
