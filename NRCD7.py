@@ -70,10 +70,10 @@ def data_loading(app, file_path_variable):
         app2.window(title_re='Select a batch file').print_control_identifiers()
         # app2.window(title_re='Select a batch file').type_keys('%o')
 
-        batch_splitbutton2 = app2.window(title_re='Select a batch file') \
+        batch_split_button2 = app2.window(title_re='Select a batch file') \
             .child_window(auto_id='1', control_type="SplitButton")
         from pywinauto.controls.win32_controls import ButtonWrapper
-        ButtonWrapper(batch_splitbutton2).click()
+        ButtonWrapper(batch_split_button2).click()
 
         # app2.window(title_re='Select a batch file').OpenSplitButton.click_input
         # app2.window(title_re='Select a batch file') \
@@ -133,18 +133,22 @@ def data_loading(app, file_path_variable):
     # if the file_path_variable directory string contains WDM
     if "WDM" in file_path_variable:
         # then Survey Contractor = WDM
-        surveycontractor = "WDM"
+        survey_contractor = "WDM"
 
         # else if the directory string contains 'G-L' select survey contractor 'Ginger-Lehmann'
     elif "G-L" in file_path_variable:
-        surveycontractor = "Ginger-Lehmann"
+        survey_contractor: str = "Ginger-Lehmann"
     else:
-        surveycontractor = "Unknown"
+        survey_contractor = "Unknown"
 
-    print(surveycontractor)
+    print(survey_contractor)
+
+    # ComboBoxWrapper(group_control.child_window(auto_id="24",
+    #                                            control_type="ComboBox")).select(la_db_name)
 
     app.window(best_match='National Roads Condition Database',
-               top_level_only=True).child_window(best_match='Survey Contractor').Edit.type_keys(surveycontractor)
+               top_level_only=True).child_window(best_match='Survey Contractor')\
+        .set_text(survey_contractor)
 
     # click 'OK' to close the data loading window
     app.window(best_match='National Roads Condition Database') \
@@ -481,12 +485,12 @@ def scanner_qa(app, file_path_variable):
 
     local_authority = filename.split("\\")[-1]
     nation = filename.split("\\")[-2]
-    year = re.search('[1-2][0-9]{3}', filename).group(0)  # regex search
+    year: str = re.search('[1-2][0-9]{3}', filename).group(0)  # regex search
 
     # logger.info('starting Scanner QA output for ' + local_authority)
     # print(local_authority)
     print(nation)
-    # print(year)
+    print(year)
 
     logger.info('starting SCANNER QA for ' + local_authority)
 
