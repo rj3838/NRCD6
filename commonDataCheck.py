@@ -1,3 +1,4 @@
+from pandas import DataFrame
 from pywinauto.application import Application
 import glob
 import logging
@@ -49,12 +50,88 @@ def authority_file_search(file_path_variable: str):
 
 files_to_process: list = authority_file_search(initial_file)
 
+initial_df: pd.DataFrame = pd.read_csv(initial_file,
+                         dtype={"SectionLabel": "str",
+                                "SectionID": "str"})
 
+sort_order: list = ['SectionLabel', 'SectionID', 'Lane', 'Class', 'UR', 'Chainage']
+
+initial_df_short = initial_df.groupby(['SectionLabel', 'SectionID', 'Lane', 'Class'])['Chainage']\
+    .max().reset_index()
+
+# initial_df_short = initial_df.loc[:, sort_order]
+
+# initial_df_short.sort_values(by=sort_order, inplace=True)
+
+# remove the initial fie from the list to process
 
 # for each file in the list of previous files
+
 for match_file in files_to_process:
 
+    match_df = pd.read_csv(match_file,
+                           dtype={"SectionLabel": "str",
+                                  "SectionID": "str"})
+    # match_df_short = match_df.groupby(sort_order).max('Chainage')
+    match_df_short = match_df.groupby(['SectionLabel', 'SectionID', 'Lane', 'Class'])['Chainage'] \
+        .max().reset_index()
 
+    # match_df_short.sort_values(by=sort_order, inplace=True)
+
+
+    # join the initial and previous data frames on the following fields :
+    # SectionLabel
+    # SectionID
+    # Lane (thats direction)
+    # Class
+    # UR (thats type)
+    # Length
+    left_key: list = ['SectionLabel', 'SectionID', 'Lane']
+
+    match_all: list = ['SectionLabel', 'SectionID', 'Lane']
+    match_label_dir: list = ['SectionLabel', 'Lane']
+    match_id_dir: list = ['SectionID', 'Lane']
+    match_a_class: list = ['A']
+    match_b_and_c_class: list = ['B', 'C']
+
+    # right_key: list = ['SectionLabel', 'SectionID', 'Lane', 'Class', 'UR', 'Chainage']
+
+    all_merged_df = initial_df_short.merge(match_df_short,
+                                          on=match_all,
+                                          suffixes=('_initial', '_match'),
+                                          how='inner')
+
+    # all_merged_df = initial_df_short.join(match_df_short,
+     #                                  on=match_all,
+      #                                 suffixes=('_initial', '_match'),
+      #                                 how='left')
+
+    # print(merged_df.head())
+
+    # all_merged_df_remove_na = all_merged_df.dropna()
+
+    # remove rows where the two road classes do not match
+
+    all_merged_df_with_matching_class = all_merged_df[(all_merged_df['Class_initial'] == all_merged_df['Class_match'])]
+
+
+    # print(all_merged_df_remove_na.head())
+
+    count_of_all_matching: int = len(all_merged_df_with_matching_class)
+    df_of_class_a: DataFrame = all_merged_df_with_matching_class.loc[all_merged_df_with_matching_class['Class_initial'].isin(['A']) ]
+    count_of_all_matching_a_class: int = len(df_of_class_a)
+    # count_of_all_matching_a_class: int = len(all_merged_df_remove_na.loc[(all_merged_df_remove_na['Class_initial'].isin(['A'])) ]) # select A roads
+    # count_of_all_matching_a_class: int = len(all_merged_df_remove_na['Class_initial'].isin(['A']))  # select A roads
+    df_of_class_b_and_c: DataFrame = all_merged_df_with_matching_class.loc[all_merged_df_with_matching_class['Class_initial'].isin(['B', 'C'])]
+    count_of_all_matching_b_and_c_class: int = len(df_of_class_b_and_c)
+    # count_of_all_matching_b_ana_c_class: int = len(all_merged_df_remove_na.loc[(all_merged_df_remove_na['Class_initial'].isin(['B', 'C']))])
+    # count_of_all_matching_b_ana_c_class: int = len(all_merged_df_remove_na['Class_initial'].isin(['B', 'C']))
+
+    print('Count of initial: ', len(initial_df_short))
+    print('Count of match: ', len(match_df_short))
+    print('Count of all matching: ', count_of_all_matching)
+    print('Count of all matching A class: ', count_of_all_matching_a_class)
+    print('Count of all matching B&C class: ', count_of_all_matching_b_and_c_class)
 
     # match initial selected file against the previous
 

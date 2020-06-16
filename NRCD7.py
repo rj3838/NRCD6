@@ -24,12 +24,14 @@ def fun_directory_selector(request_string: str, selected_directory_list: list, s
 def nrcd_running_check(number_of_windows: str):
     from pywinauto import Application
 
-    tb = Application(backend="uia").connect(title='Taskbar')  # backend is important!!!
+    # Check the taskbar to find the number of running applications. Anything different than the number_of_windows means
+    # that the function returns false and the calling process will wait
 
+    tb = Application(backend="uia").connect(title='Taskbar')  # backend is important!!!
     running_apps = tb.Taskbar.child_window(title="Running applications", control_type="ToolBar")
 
     nrcd_windows = "NRCD.exe - " + number_of_windows + " running windows"
-    print(nrcd_windows)
+    # print(nrcd_windows)
 
     # print([w.window_text() for w in running_apps.children()])
 
@@ -42,10 +44,15 @@ def nrcd_running_check(number_of_windows: str):
 
 
 def data_loading(app, file_path_variable):
+    # from pywinauto.controls.win32_controls import ComboBoxWrapper
+
+    # click on the loading button
+
     app.window(best_match='National Roads Condition Database - Version*', top_level_only=True).child_window(
         best_match='Loading').click()
 
-    # if the file_path_variable directory contains a file 'BatchList' use 'Select Batch File'
+    # if the file_path_variable directory contains a file 'BatchList' use the 'Select Batch File'
+    # else use 'Create Batch file'
 
     if os.path.isfile(file_path_variable + '/BatchList.txt'):
         filename = file_path_variable + '/BatchList.txt'
@@ -53,7 +60,7 @@ def data_loading(app, file_path_variable):
 
         time.sleep(30)
 
-        app.window(best_match='National Roads Condition Database Version', top_level_only=True) \
+        app.window(best_match='National Roads Condition Database - Version', top_level_only=True) \
             .child_window(best_match='Select Batch file').click()
 
         filename = filename.replace('/', '\\')
@@ -67,7 +74,7 @@ def data_loading(app, file_path_variable):
         # EditWrapper(edit_text_box1).set_text(filename)
         # app2.window(title_re='Select a batch file').type_keys(filename, with_spaces=True)
         app2.window(title_re='Select a batch file').File_name_Edit.set_text(filename)
-        app2.window(title_re='Select a batch file').print_control_identifiers()
+        # app2.window(title_re='Select a batch file').print_control_identifiers()
         # app2.window(title_re='Select a batch file').type_keys('%o')
 
         batch_split_button2 = app2.window(title_re='Select a batch file') \
@@ -85,7 +92,7 @@ def data_loading(app, file_path_variable):
         del app2
     else:
         # else pick the first .hmd file and use 'Create Batch File'
-        print("\nfile missing")
+        print("\nBatchfile file missing")
 
         # app.window(best_match='National Roads Condition Database - Version', top_level_only=True).child_window(
         #   best_match='OK').click()
@@ -95,13 +102,17 @@ def data_loading(app, file_path_variable):
         filename = glob.glob(file_search_variable)
         # filename = filename[0]
         print("\nFile found : ", filename[0])
-        # time.sleep(30)
-        app.window(best_match='National Roads Condition Database Version *', top_level_only=True) \
+
+        time.sleep(20)
+
+        # click on 'Create Batch File' then OK on the following window
+
+        app.window(best_match='National Roads Condition Database - Version *', top_level_only=True) \
             .child_window(best_match='Create Batch file').click()
 
         time.sleep(30)
 
-        app.window(best_match='National Roads Condition Database Version *') \
+        app.window(best_match='National Roads Condition Database  - Version *') \
             .child_window(best_match='NRCD') \
             .child_window(best_match='OK').click()
 
@@ -109,6 +120,10 @@ def data_loading(app, file_path_variable):
         #    .child_window(best_match='OK').click()
 
         time.sleep(30)
+
+        # There will be a file selection window. Connect to it (it's not part of NRCD)
+        # So it's a new application.
+
         app3 = Application(backend="uia").connect(title='Create a file in the required directory')
         print("\nconnect app3")
         time.sleep(15)
@@ -116,16 +131,22 @@ def data_loading(app, file_path_variable):
         #    .child_window(best_match="File name:")
         # from pywinauto.controls.win32_controls import EditWrapper
         # EditWrapper(edit_text_box2).set_text(filename)
+
+        # put the filename that was found into the filename box
         app3.window(title_re='Create a file in the required directory') \
             .File_name_Edit.set_text(filename[0])
+
         # app3.window(title_re='Create a file in the required directory').type_keys(filename[0], with_spaces=True)
-        app3.window(title_re='Create a file in the required directory').print_control_identifiers()
+        # app3.window(title_re='Create a file in the required directory').print_control_identifiers()
         # app3.window(title_re='Create a file in the required directory') \
         # .Open3_SplitButton.click()
-        batch_splitbutton1 = app3.window(title_re='Create a file in the required directory') \
+
+        # Click on the open button, this is a bit more involved so that it works with a locked screen.
+
+        batch_split_button1 = app3.window(title_re='Create a file in the required directory') \
             .child_window(auto_id='1', control_type="SplitButton")
         from pywinauto.controls.win32_controls import ButtonWrapper
-        ButtonWrapper(batch_splitbutton1).click()
+        ButtonWrapper(batch_split_button1).click()
         # child_window(title="Open", auto_id="1", control_type="SplitButton")
         # .child_window(best_match='Open3').click()
         del app3
@@ -133,11 +154,13 @@ def data_loading(app, file_path_variable):
     # if the file_path_variable directory string contains WDM
     if "WDM" in file_path_variable:
         # then Survey Contractor = WDM
-        survey_contractor = "WDM"
+        survey_contractor: str = "WDM"
 
         # else if the directory string contains 'G-L' select survey contractor 'Ginger-Lehmann'
     elif "G-L" in file_path_variable:
         survey_contractor: str = "Ginger-Lehmann"
+
+        # it's not one of the two we know about. Should another contractor start surveying then add another 'elif'
     else:
         survey_contractor = "Unknown"
 
@@ -145,24 +168,60 @@ def data_loading(app, file_path_variable):
 
     # ComboBoxWrapper(group_control.child_window(auto_id="24",
     #                                            control_type="ComboBox")).select(la_db_name)
-    app.window(best_match='National Roads Condition Database',
-               top_level_only=True).print_control_identifiers()
+    # app.window(best_match='National Roads Condition Database',
+    #           top_level_only=True).print_control_identifiers()
+    # batch_combobox1 = app.window(best_match='National Roads Condition Database - Version*') \
+    #     .child_window(best_match='Local Authority Attribute', control_type="Group") \
+    #    .child_window(title="OK", auto_id="6", control_type="Button")\
+    #    .wait('exists enabled visible ready')
 
-    app.window(best_match='National Roads Condition Database',
-               top_level_only=True).child_window(best_match='Survey Contractor')\
-        .set_text(survey_contractor)
+    # from pywinauto.controls.uia_controls import ComboBoxWrapper
 
-    # click 'OK' to close the data loading window
+    # from pywinauto.controls.win32_controls import EditWrapper
+
+    # batch_combobox1 = app.window(best_match='National Roads Condition Database - Version*') \
+    #    .child_window(best_match='Local Authority Attribute', control_type="Group") \
+    #    .child_window(title="Survey Contractor", auto_id="1", control_type="Group") \
+    #    .child_window(title="OK", auto_id="6", control_type="Button")
+    # best_match='National Roads Condition Database',
+    #                top_level_only=True).child_window(best_match='Survey Contractor'
+    # app.window(best_match='National Roads Condition Database',
+    #          top_level_only=True).child_window(best_match='Survey Contractor').Edit.type_keys(surveycontractor)
+    from pywinauto.controls.win32_controls import ComboBoxWrapper
+
+    surveyor_combobox = app.window(best_match='National Roads Condition Database') \
+        .child_window(best_match='Survey Contractor', control_type='Group') \
+        .child_window(auto_id="3", control_type="ComboBox")
+
+    #    .child_window(title="Survey Contractor", auto_id="5", control_type="Edit")
+
+    # EditWrapper(surveyor_menu).set_text(survey_contractor)
+
+    ComboBoxWrapper(surveyor_combobox).select(survey_contractor)
+
+    # contractor_combobox = app.window(best_match='National Roads Condition Database',
+    #                                 top_level_only=True).child_window(best_match='Survey Contractor')
+    # ComboBoxWrapper(contractor_combobox).select(survey_contractor)
+    # contractor_combobox.Survey_Contractor_Edit.set_text(survey_contractor)
+
+    # batch_combobox2 = app.window(best_match='National Roads Condition Database - Version*') \
+    #    .child_window(best_match='Local Authority Attribute', control_type="Group") \
+    #    .child_window(auto_id='4', control_type="ComboBox")  # .wait('exists enabled visible ready')
+
+    # click 'OK' to close the data loading window as we have all the appropriate details entered in the window.
+
     app.window(best_match='National Roads Condition Database') \
         .child_window(best_match='OK').click()
 
-    # back on the main screen, click the process radio button then the actual 'Process' button
+    # back on the NRCD main screen, click the process radio button then the actual 'Process' button
 
     app.window(best_match='National Roads Condition Database - Version *',
                top_level_only=True).child_window(best_match='Process').click()
 
-    print(filename)
+    # print(filename)
 
+    # The log entry contains the first file to be loaded (the rest will not appear and NRCD uses the
+    # batchfile to find them
     logger.info('Starting loading with ' + filename[0])
 
     time.sleep(60)
@@ -176,7 +235,7 @@ def data_loading(app, file_path_variable):
 
     logger.info('loading completed')
 
-    return
+    return  # back to main
 
 
 def assign_la(app, file_path_variable):
@@ -208,9 +267,9 @@ def assign_la(app, file_path_variable):
     time.sleep(60)
     # app4.window(title_re='Select a batch file').File_name_Edit.set_text(filename)
     # app4.window(title_re='Select a batch file').type_keys(filename, with_spaces=True)
-    app4.window(title_re='Select a batch file').print_control_identifiers()
+    # app4.window(title_re='Select a batch file').print_control_identifiers()
     app4.window(title_re='Select a batch file').File_name_Edit.set_text(filename)
-    app4.window(title_re='Select a batch file').print_control_identifiers()
+    # app4.window(title_re='Select a batch file').print_control_identifiers()
 
     # app4.window(title_re='Select a batch file').type_keys('%o')
     batch_splitbutton1 = app4.window(title_re='Select a batch file') \
@@ -273,6 +332,8 @@ def assign_la(app, file_path_variable):
         .click()
 
     logger.info('waiting for LA assignment to complete')
+
+    time.sleep(60)
 
     #  the following contains 10000 seconds. This is to stop the wait timing out, it retries each 90 secs
     #  but the attributes should be finished in under 6 hours... or even one hour.
@@ -388,7 +449,7 @@ def assign_urb_rural(app):
     from pywinauto.controls.win32_controls import ComboBoxWrapper
     from pywinauto.controls.win32_controls import ButtonWrapper
 
-    # main_screen = app.window(best_match='National Roads Condition Database - V*')
+    main_screen = app.window(best_match='National Roads Condition Database - V*')
 
     # on the main screen turn all the check boxes off.
 
@@ -697,5 +758,9 @@ if len(directories_to_process[0]) > 0:
         logger.info('End of the run')
 
         app.window(best_match='National Roads Condition Database - Version *').Exit.click()
+
+        # remove references to the previously opened instance of NRCD
+
+        del app
 
 sys.exit()
