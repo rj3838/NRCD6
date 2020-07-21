@@ -65,7 +65,7 @@ initial_df_short = initial_df.groupby(['SectionLabel', 'SectionID', 'Lane', 'Cla
 
 # remove the initial fie from the list to process
 
-# for each file in the list of previous files
+# for each file in the list of previous year files
 
 for match_file in files_to_process:
 
@@ -73,13 +73,15 @@ for match_file in files_to_process:
                            dtype={"SectionLabel": "str",
                                   "SectionID": "str"})
     # match_df_short = match_df.groupby(sort_order).max('Chainage')
+
+    # reduce the columns we are dealing with
     match_df_short = match_df.groupby(['SectionLabel', 'SectionID', 'Lane', 'Class'])['Chainage'] \
         .max().reset_index()
 
     # match_df_short.sort_values(by=sort_order, inplace=True)
 
 
-    # join the initial and previous data frames on the following fields :
+    # join the initial and previous data frames on the following fields
     # SectionLabel
     # SectionID
     # Lane (thats direction)
@@ -118,6 +120,11 @@ for match_file in files_to_process:
     # print(all_merged_df_remove_na.head())
 
     count_of_all_matching: int = len(all_merged_df_with_matching_class)
+    chainage_of_initial_class = all_merged_df_with_matching_class['Chainage_initial'].sum()
+    chainage_of_matching_class = all_merged_df_with_matching_class['Chainage_match'].sum()
+
+    percentage_difference = (abs(chainage_of_initial_class - chainage_of_matching_class) /
+                             ((chainage_of_initial_class + chainage_of_matching_class) / 2)) * 100
     df_of_class_a: DataFrame = all_merged_df_with_matching_class.loc[all_merged_df_with_matching_class['Class_initial'].isin(['A']) ]
     count_of_all_matching_a_class: int = len(df_of_class_a)
     # count_of_all_matching_a_class: int = len(all_merged_df_remove_na.loc[(all_merged_df_remove_na['Class_initial'].isin(['A'])) ]) # select A roads
@@ -129,9 +136,18 @@ for match_file in files_to_process:
 
     print('Count of initial: ', len(initial_df_short))
     print('Count of match: ', len(match_df_short))
+    print('Length of initial', all_merged_df_with_matching_class['Chainage_initial'].sum())
+    print(chainage_of_initial_class)
+    print(chainage_of_matching_class)
+    print('Length of matching', all_merged_df_with_matching_class['Chainage_match'].sum())
+    print('percentage difference', percentage_difference)
     print('Count of all matching: ', count_of_all_matching)
+    # print('Length of initial', initial_df_short['Chainage'].sum(axis=1))
+
     print('Count of all matching A class: ', count_of_all_matching_a_class)
     print('Count of all matching B&C class: ', count_of_all_matching_b_and_c_class)
+
+    
 
     # match initial selected file against the previous
 

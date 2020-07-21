@@ -69,26 +69,13 @@ def data_loading(app, file_path_variable):
         time.sleep(15)
         app2 = Application(backend="uia").connect(title_re='Select a batch file', visible_only=True)
         print("\nConnect app2 filename is ", filename)
-        # edit_text_box1 = app2.window(title_re='Select a batch file') \
-        #    .child_window(best_match="File name:")
-        # from pywinauto.controls.win32_controls import EditWrapper
-        # EditWrapper(edit_text_box1).set_text(filename)
-        # app2.window(title_re='Select a batch file').type_keys(filename, with_spaces=True)
+
         app2.window(title_re='Select a batch file').File_name_Edit.set_text(filename)
-        # app2.window(title_re='Select a batch file').print_control_identifiers()
-        # app2.window(title_re='Select a batch file').type_keys('%o')
 
         batch_split_button2 = app2.window(title_re='Select a batch file') \
             .child_window(auto_id='1', control_type="SplitButton")
         from pywinauto.controls.win32_controls import ButtonWrapper
         ButtonWrapper(batch_split_button2).click()
-
-        # app2.window(title_re='Select a batch file').OpenSplitButton.click_input
-        # app2.window(title_re='Select a batch file') \
-        #   .child_window(title='Pane1') \
-        #   .child_window(title='Open', auto_id=1).click()
-        #    .child_window(title='Open', auto_id=1, control_type="UIA_SplitButtonControlTypeId").click()
-        # .child_window(title='SplitButton6').click()
 
         del app2
     else:
@@ -117,9 +104,6 @@ def data_loading(app, file_path_variable):
             .child_window(best_match='NRCD') \
             .child_window(best_match='OK').click()
 
-        # app.window(best_match='National Roads Condition Database Version *') \
-        #    .child_window(best_match='OK').click()
-
         time.sleep(30)
 
         # There will be a file selection window. Connect to it (it's not part of NRCD)
@@ -128,19 +112,10 @@ def data_loading(app, file_path_variable):
         app3 = Application(backend="uia").connect(title='Create a file in the required directory')
         print("\nconnect app3")
         time.sleep(15)
-        # edit_text_box2 = app3.window(title_re='Select a batch file') \
-        #    .child_window(best_match="File name:")
-        # from pywinauto.controls.win32_controls import EditWrapper
-        # EditWrapper(edit_text_box2).set_text(filename)
 
         # put the filename that was found into the filename box
         app3.window(title_re='Create a file in the required directory') \
             .File_name_Edit.set_text(filename[0])
-
-        # app3.window(title_re='Create a file in the required directory').type_keys(filename[0], with_spaces=True)
-        # app3.window(title_re='Create a file in the required directory').print_control_identifiers()
-        # app3.window(title_re='Create a file in the required directory') \
-        # .Open3_SplitButton.click()
 
         # Click on the open button, this is a bit more involved so that it works with a locked screen.
 
@@ -148,8 +123,7 @@ def data_loading(app, file_path_variable):
             .child_window(auto_id='1', control_type="SplitButton")
         from pywinauto.controls.win32_controls import ButtonWrapper
         ButtonWrapper(batch_split_button1).click()
-        # child_window(title="Open", auto_id="1", control_type="SplitButton")
-        # .child_window(best_match='Open3').click()
+
         del app3
 
     # if the file_path_variable directory string contains WDM
@@ -167,47 +141,13 @@ def data_loading(app, file_path_variable):
 
     print(survey_contractor)
 
-    # ComboBoxWrapper(group_control.child_window(auto_id="24",
-    #                                            control_type="ComboBox")).select(la_db_name)
-    # app.window(best_match='National Roads Condition Database',
-    #           top_level_only=True).print_control_identifiers()
-    # batch_combobox1 = app.window(best_match='National Roads Condition Database - Version*') \
-    #     .child_window(best_match='Local Authority Attribute', control_type="Group") \
-    #    .child_window(title="OK", auto_id="6", control_type="Button")\
-    #    .wait('exists enabled visible ready')
-
-    # from pywinauto.controls.uia_controls import ComboBoxWrapper
-
-    # from pywinauto.controls.win32_controls import EditWrapper
-
-    # batch_combobox1 = app.window(best_match='National Roads Condition Database - Version*') \
-    #    .child_window(best_match='Local Authority Attribute', control_type="Group") \
-    #    .child_window(title="Survey Contractor", auto_id="1", control_type="Group") \
-    #    .child_window(title="OK", auto_id="6", control_type="Button")
-    # best_match='National Roads Condition Database',
-    #                top_level_only=True).child_window(best_match='Survey Contractor'
-    # app.window(best_match='National Roads Condition Database',
-    #          top_level_only=True).child_window(best_match='Survey Contractor').Edit.type_keys(surveycontractor)
-    from pywinauto.controls.win32_controls import ComboBoxWrapper
+     from pywinauto.controls.win32_controls import ComboBoxWrapper
 
     surveyor_combobox = app.window(best_match='National Roads Condition Database') \
         .child_window(best_match='Survey Contractor', control_type='Group') \
         .child_window(auto_id="3", control_type="ComboBox")
 
-    #    .child_window(title="Survey Contractor", auto_id="5", control_type="Edit")
-
-    # EditWrapper(surveyor_menu).set_text(survey_contractor)
-
     ComboBoxWrapper(surveyor_combobox).select(survey_contractor)
-
-    # contractor_combobox = app.window(best_match='National Roads Condition Database',
-    #                                 top_level_only=True).child_window(best_match='Survey Contractor')
-    # ComboBoxWrapper(contractor_combobox).select(survey_contractor)
-    # contractor_combobox.Survey_Contractor_Edit.set_text(survey_contractor)
-
-    # batch_combobox2 = app.window(best_match='National Roads Condition Database - Version*') \
-    #    .child_window(best_match='Local Authority Attribute', control_type="Group") \
-    #    .child_window(auto_id='4', control_type="ComboBox")  # .wait('exists enabled visible ready')
 
     # click 'OK' to close the data loading window as we have all the appropriate details entered in the window.
 
@@ -218,8 +158,6 @@ def data_loading(app, file_path_variable):
 
     app.window(best_match='National Roads Condition Database - Version *',
                top_level_only=True).child_window(best_match='Process').click()
-
-    # print(filename)
 
     # The log entry contains the first file to be loaded (the rest will not appear and NRCD uses the
     # batchfile to find them
@@ -252,11 +190,6 @@ def assign_la(app, file_path_variable):
     group_control.child_window(title="Select Batch File", auto_id="7", control_type="Button") \
         .click()
 
-    # app.window(best_match='National Roads Condition Database - Version *') \
-    #  .child_window(title="Local Authority Attribute", auto_id="3", control_type="Group") \
-    #   .child_window(title="Select Batch File", auto_id="7", control_type="Button") \
-    #   .click()
-
     filename = file_path_variable + '/BatchList.txt'
     print("\nfilename is ", filename)
     logger.info('File name is ' + filename)
@@ -266,13 +199,9 @@ def assign_la(app, file_path_variable):
     print("\nConnect app4 filename is ", filename)
     logger.info('Connecting to the batch file selection with ' + filename)
     time.sleep(60)
-    # app4.window(title_re='Select a batch file').File_name_Edit.set_text(filename)
-    # app4.window(title_re='Select a batch file').type_keys(filename, with_spaces=True)
-    # app4.window(title_re='Select a batch file').print_control_identifiers()
-    app4.window(title_re='Select a batch file').File_name_Edit.set_text(filename)
-    # app4.window(title_re='Select a batch file').print_control_identifiers()
 
-    # app4.window(title_re='Select a batch file').type_keys('%o')
+    app4.window(title_re='Select a batch file').File_name_Edit.set_text(filename)
+
     batch_splitbutton1 = app4.window(title_re='Select a batch file') \
         .child_window(auto_id='1', control_type="SplitButton")
     from pywinauto.controls.win32_controls import ButtonWrapper
@@ -282,8 +211,6 @@ def assign_la(app, file_path_variable):
     # use the location of the BatchList.txt to extract the local authority. It's two from the end.
 
     local_authority = filename.split("\\")[-2]
-
-    # print(local_authority)
 
     logger.info('starting to assign attributes for ' + local_authority)
 
@@ -295,21 +222,9 @@ def assign_la(app, file_path_variable):
 
     la_db_name: str = la_lookup_table.loc[local_authority, "NRCD_Name"]
 
-    # survey_year = "2019/20"
-    # print(la_db_name)
     logger.info('DB name for the LA is ' + la_db_name)
 
-    # app.window(best_match='National Roads Condition Database - Version*') \
-    #   .child_window(best_match='Local Authority Attribute', control_type="Group").print_control_identifiers()
     time.sleep(15)
-
-    # app.window(best_match='National Roads Condition Database - Version *') \
-    # .child_window(title="Local Authority Attribute", control_type="Group") \
-    # .child_window(best_match='3',control_type="ComboBox").type_keys("%{DOWN}")
-    # app.window(best_match='National Roads Condition Database - Version*') \
-    # .child_window(best_match='Local Authority Attribute', control_type="Group") \
-    # .child_window(auto_id='6', control_type="ComboBox").select(la_db_name)
-    # print(la_db_name)
 
     batch_combobox1 = app.window(best_match='National Roads Condition Database - Version*') \
         .child_window(best_match='Local Authority Attribute', control_type="Group") \
@@ -356,10 +271,6 @@ def assign_la(app, file_path_variable):
 def fitting(app):
     from pywinauto.controls.win32_controls import ComboBoxWrapper
     from pywinauto.controls.win32_controls import ButtonWrapper
-    # from pywinauto.controls import uia_controls
-    # from pywinauto.controls import common_controls
-
-    # main_screen = app.window(best_match='National Roads Condition Database - V*')
 
     main_screen_process_checkbox = main_screen.child_window(title="Process", auto_id="15", control_type="CheckBox")
     main_screen_process_checkbox2 = main_screen.child_window(title="Process", auto_id="16", control_type="CheckBox")
@@ -409,22 +320,6 @@ def fitting(app):
     main_screen.child_window(title="OK", auto_id="11", control_type="Button").click()
 
     time.sleep(15)
-
-    # app.window(best_match='National Roads Condition Database - Version*') \
-    #    .child_window(best_match='Year options', control_type="Group") \
-    #    .child_window(control_type="ComboBox").wait('exists enabled visible ready')
-    # main_screen_group = main_screen.child_window(auto_id="11", control_type="Group")
-
-    # main_screen_main_screen_process_checkbox = main_screen.child_window(title="Process",
-    # auto_id="15", control_type="CheckBox")
-    # main_screen_process_checkbox2 = main_screen.child_window(title="Process", auto_id="16", control_type="CheckBox")
-    # main_screen_ProcessCheckbox3 = main_screen.child_window(title="Process", auto_id="17", control_type="CheckBox")
-    # main_screen_process_checkbox4 = main_screen.child_window(title="Process", auto_id="18", control_type="CheckBox")
-
-    # ButtonWrapper(main_screen_main_screen_process_checkbox).uncheck_by_click()
-    # ButtonWrapper(main_screen_process_checkbox2).uncheck_by_click()
-    # ButtonWrapper(main_screen_ProcessCheckbox3).check_by_click()
-    # ButtonWrapper(main_screen_process_checkbox4).uncheck_by_click()
 
     # the 'process' click box is already set so click on the main scree Process button at the bottom
     # then wait for the fitting to complete.
@@ -580,8 +475,6 @@ def scanner_qa(app, file_path_variable):
     group_control = app.window(best_match='National Roads Condition Database - Version *') \
         .child_window(title="Survey QA Options", auto_id="9", control_type="Group")
 
-    # groupcontrol.print_control_identifiers()
-
     # exclude the previous year and the U roads (uncheck_by_click) then select the LA abd survey year.
 
     ButtonWrapper(group_control
@@ -602,8 +495,6 @@ def scanner_qa(app, file_path_variable):
 
     group_control.child_window(auto_id="26",
                                title="Export QA Data").click()
-
-    # print("Waiting for a user !")
 
     # build output file name.
 
@@ -635,18 +526,13 @@ def scanner_qa(app, file_path_variable):
     app5 = Application(backend="uia").connect(title_re='Select an output file name', visible_only=True)
     print("\nConnect app5 filename is ", output_file_name)
     time.sleep(30)
-    # app5.window(title_re='Select an output file name').print_control_identifiers()
     app5.window(title_re='Select an output file name').File_name_Edit.set_text(output_file_name)
-    # app5.window(title_re='Select an output file name').print_control_identifiers()
 
-    # app4.window(title_re='Select a batch file').type_keys('%o')
     batch_split_button1 = app5.window(title_re='Select an output file name') \
         .child_window(title='Save', auto_id='1', control_type="Button")
     from pywinauto.controls.win32_controls import ButtonWrapper
     ButtonWrapper(batch_split_button1).click()
 
-    # app5.window(title_re='Select an output file name').type_keys(output_file_name, with_spaces=True)
-    # app5.window(title_re='Select an output file name').Save.click()
     del app5
 
     time.sleep(60)
@@ -665,10 +551,6 @@ def scanner_qa(app, file_path_variable):
         .child_window(title="NRCD").OK.click()
 
     # Wait patiently
-
-    # while nrcd_running_check("2"):
-    # logger.info('waiting for ' + local_authority + 'QA output to finish')
-    # time.sleep(90)
 
     logger.info(local_authority + ' QA output complete')
 
@@ -702,15 +584,11 @@ curr_dir = os.getcwd()
 logger.info('Current directory ' + curr_dir)
 print('ask directory')
 
-# root_win = tkinter.Tk()
-# root.withdraw()
-
 directories_to_process = list()
 
 directories_to_process: list = fun_directory_selector('Please select a directory containing the data',
                                                       directories_to_process,
                                                       curr_dir)
-# print(directories_to_process, sep='\n')
 
 # noinspection DuplicatedCode
 print("\n", directories_to_process)
@@ -722,11 +600,6 @@ if len(directories_to_process[0]) > 0:
     for file_path_variable in directories_to_process:
         if len(file_path_variable) > 0:
             logger.info('Working with ' + file_path_variable)
-
-# logger.info('Working with ' + file_path_variable)
-# file_path_variable = filedialog.askdirectory(initialdir=curr_dir,
-# title='Please select a directory containing the data')
-# print("\nfile_path_variable = ", file_path_variable)
 
         from pywinauto.application import Application
 
@@ -760,7 +633,7 @@ if len(directories_to_process[0]) > 0:
 
         app.window(best_match='National Roads Condition Database - Version *').Exit.click()
 
-        # remove references to the previously opened instance of NRCD
+        # remove references to the previously opened instance of NRCD just to be tidy...
 
         del app
 

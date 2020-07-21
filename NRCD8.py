@@ -6,7 +6,7 @@ import sys
 import time
 import tkinter
 from tkinter import filedialog
-# import pywinauto
+# import pywinauto.controls.common_controls as pwaccc
 import pandas as pd
 
 
@@ -15,8 +15,7 @@ def fun_directory_selector(request_string: str, selected_directory_list: list, s
 
     if len(directory_path_string) > 0:
         selected_directory_list.append(directory_path_string)
-        fun_directory_selector('Select the next Local Authority Directory or Cancel to end',
-                               selected_directory_list,
+        fun_directory_selector('Select the next Local Authority Directory or Cancel to end', selected_directory_list,
                                os.path.dirname(directory_path_string))
 
     return selected_directory_list
@@ -46,11 +45,12 @@ def nrcd_running_check(number_of_windows: str):
 
 def data_loading(app, file_path_variable):
     # from pywinauto.controls.win32_controls import ComboBoxWrapper
+    from pywinauto.controls.uia_controls import ToolbarWrapper
 
     # click on the loading button
 
-    app.window(best_match='National Roads Condition Database - Version*', top_level_only=True).child_window(
-        best_match='Loading').click()
+    app.window(best_match='National Roads Condition Database - Version*', top_level_only=True)\
+        .child_window(best_match='Loading').click()
 
     # if the file_path_variable directory contains a file 'BatchList' use the 'Select Batch File'
     # else use 'Create Batch file'
@@ -74,7 +74,54 @@ def data_loading(app, file_path_variable):
         # from pywinauto.controls.win32_controls import EditWrapper
         # EditWrapper(edit_text_box1).set_text(filename)
         # app2.window(title_re='Select a batch file').type_keys(filename, with_spaces=True)
-        app2.window(title_re='Select a batch file').File_name_Edit.set_text(filename)
+
+        # split filename[0] into the directory path and the filename (because Mickysoft has changed the window !)
+        directory_path = os.path.dirname(filename)
+        print(directory_path)
+        selected_filename = os.path.basename(filename)
+        app2.window(title_re='Select a batch file') \
+            .File_name_Edit.set_text(selected_filename)
+        # app2.window(title_re='Select a batch file').print_control_identifiers()
+        # app2.window(title_re='Select a batch file') \
+        #     .child_window(title='Toolbar4').click()
+        # app2.window(title_re='Select a batch file').print_control_identifiers()
+        toolbar2 = app2.window(title_re='Select a batch file')  # \
+        #     .child_window(title_re='Address', auto_id='1001')
+        #     .child_window(title_re='Address', control_type="ToolBar", auto_id='1001')
+        # file_path_address = toolbar2['Address band toolbarToolbar'].click_input()
+        # file_path_address = toolbar2.child_window(title="All locations", control_type="SplitButton").click_input()
+        toolbar2.child_window(title="All locations", control_type="SplitButton").click_input()
+        # toolbar2.child_window(title_re='Select a batch file').print_control_identifiers()
+        raw_directory_path = r'{}'.format(directory_path)
+        toolbar2.child_window(title_re='Address', auto_id='41477', class_name='Edit')\
+            .set_edit_text(raw_directory_path).click_input()
+        #toolbar2.child_window(title="Button24", control_type="Button").click()
+
+        time.sleep(15)
+        # toolbar2.print_control_identifiers()
+        #toolbar2.child_window(title_re="Previous locations", control_type="Button").click()
+        # toolbar2.print_control_identifiers()
+        # toolbar2.child_window(title_re="Go to", control_type="Button").click()
+        # toolbar2.child_window(title_re="Refresh", control_type="Button").click()
+        #toolbar2.child_window(title_re="Go to*", control_type="Button").click()
+        #time.sleep(15)
+
+        #toolbar2.child_window(title="SearchEditBox", control_type="Edit").set_focus()
+        # toolbar2.child_window(title_re='Go to').click()
+        #time.sleep(15)
+
+        # file_path_address.set_text(directory_path)
+
+        # ToolbarWrapper(toolbar2).set_text(directory_path)
+        # ToolbarWrapper(toolbar2).click(button='All locationsSplitButton').set_text(directory_path)
+        # ToolbarWrapper(toolbar2)['Address:'].set_text(directory_path)
+        # app.WindowName['No. of loops:Edit'].set_text('99999')
+        # toolbar2.print_control_identifiers()
+
+        # selected_filename = os.path.basename(filename)
+        # app2.window(title_re='Select a batch file') \
+        #     .File_name_Edit.set_text(selected_filename)
+        # app2.window(title_re='Select a batch file').File_name_Edit.set_text(filename)
         # app2.window(title_re='Select a batch file').print_control_identifiers()
         # app2.window(title_re='Select a batch file').type_keys('%o')
 
@@ -134,8 +181,20 @@ def data_loading(app, file_path_variable):
         # EditWrapper(edit_text_box2).set_text(filename)
 
         # put the filename that was found into the filename box
+        app3.window(title_re='Create a file in the required directory').print_control_identifiers()
+
         app3.window(title_re='Create a file in the required directory') \
-            .File_name_Edit.set_text(filename[0])
+            .child_window(title_re='Address').click()
+        app3.window(title_re='Create a file in the required directory').print_control_identifiers()
+
+        # split filename[0] into the directory path and the filename (because Mickysoft has changed the window !)
+        directory_path = os.path.dirname(filename[0])
+        app3.window(title_re='Create a file in the required directory') \
+            .Address_Edit.set_text(directory_path)
+
+        selected_filename = os.path.basename(filename[0])
+        app3.window(title_re='Create a file in the required directory') \
+            .File_name_Edit.set_text(selected_filename)
 
         # app3.window(title_re='Create a file in the required directory').type_keys(filename[0], with_spaces=True)
         # app3.window(title_re='Create a file in the required directory').print_control_identifiers()
@@ -232,7 +291,7 @@ def data_loading(app, file_path_variable):
 
     while nrcd_running_check("2"):
         logger.info('waiting for loading to complete')
-        time.sleep(300)
+        time.sleep(120)
 
     logger.info('loading completed')
 
@@ -266,10 +325,16 @@ def assign_la(app, file_path_variable):
     print("\nConnect app4 filename is ", filename)
     logger.info('Connecting to the batch file selection with ' + filename)
     time.sleep(60)
+
+    # split filename into the directory path and the filename (because Mickysoft has changed the window !)
+    directory_path = os.path.dirname(filename)
+    app4.window(title_re='Select a batch file') \
+        .Toolbar4_Edit.set_text(directory_path)
+
+    selected_filename = os.path.basename(filename)
+    app4.window(title_re='Select a batch file') \
+        .File_name_Edit.set_text(selected_filename)
     # app4.window(title_re='Select a batch file').File_name_Edit.set_text(filename)
-    # app4.window(title_re='Select a batch file').type_keys(filename, with_spaces=True)
-    # app4.window(title_re='Select a batch file').print_control_identifiers()
-    app4.window(title_re='Select a batch file').File_name_Edit.set_text(filename)
     # app4.window(title_re='Select a batch file').print_control_identifiers()
 
     # app4.window(title_re='Select a batch file').type_keys('%o')
@@ -295,7 +360,7 @@ def assign_la(app, file_path_variable):
 
     la_db_name: str = la_lookup_table.loc[local_authority, "NRCD_Name"]
 
-    # survey_year = "2019/20"
+    # survey_year = "2020/21"
     # print(la_db_name)
     logger.info('DB name for the LA is ' + la_db_name)
 
@@ -322,7 +387,7 @@ def assign_la(app, file_path_variable):
         .child_window(best_match='Local Authority Attribute', control_type="Group") \
         .child_window(auto_id='4', control_type="ComboBox")  # .wait('exists enabled visible ready')
 
-    ComboBoxWrapper(batch_combobox2).select(" 2019/20")
+    ComboBoxWrapper(batch_combobox2).select(" 2020/21")
 
     time.sleep(15)
 
@@ -400,7 +465,7 @@ def fitting(app):
         .child_window(best_match='Year options:', auto_id="21", control_type="Group") \
         .child_window(auto_id='24', control_type="ComboBox")
 
-    ComboBoxWrapper(batch_combobox24).select(" 2019/20")
+    ComboBoxWrapper(batch_combobox24).select(" 2020/21")
 
     time.sleep(5)
 
@@ -438,7 +503,7 @@ def fitting(app):
 
     while nrcd_running_check("2"):
         logger.info('waiting for Fitting to complete')
-        time.sleep(300)
+        time.sleep(90)
 
     logger.info('fitting complete')
 
@@ -497,7 +562,7 @@ def assign_urb_rural(app):
 
     ComboBoxWrapper(groupcontrol.child_window(auto_id="15",
                                               control_type="ComboBox")) \
-        .select(" 2019/20")
+        .select(" 2020/21")
 
     app.window(best_match='National Roads Condition Database').child_window(best_match='OK').click()
 
@@ -515,7 +580,7 @@ def assign_urb_rural(app):
 
     while nrcd_running_check("2"):
         logger.info('waiting for Urban/Rural Attributes to complete')
-        time.sleep(300)
+        time.sleep(90)
 
     logger.info('U/R attributes complete')
 
@@ -596,7 +661,7 @@ def scanner_qa(app, file_path_variable):
                                                control_type="ComboBox")).select(la_db_name)
 
     ComboBoxWrapper(group_control.child_window(auto_id="25",
-                                               control_type="ComboBox")).select(" 2019/20")
+                                               control_type="ComboBox")).select(" 2020/21")
 
     # Export the data
 
@@ -607,8 +672,8 @@ def scanner_qa(app, file_path_variable):
 
     # build output file name.
 
-    # output_file_name = os.path.normpath("//trllimited/data/INF_ScannerQA/Audit_Reports/NRCD Data"
-    output_file_name = os.path.normpath("C:/Users/rjaques/temp/Data/" + local_authority + "_" + year + ".csv")
+    output_file_name = os.path.normpath("//trllimited/data/INF_ScannerQA/Audit_Reports/NRCD Data" + local_authority + "_" + year + ".csv")
+    # output_file_name = os.path.normpath("C:/Users/rjaques/temp/Data/" + local_authority + "_" + year + ".csv")
 
     # add the year combination (year and '-' and  2 digit next year so
     # convert year string to numeric, add one, convert back to string and use the last 2 chars
@@ -636,10 +701,18 @@ def scanner_qa(app, file_path_variable):
     print("\nConnect app5 filename is ", output_file_name)
     time.sleep(30)
     # app5.window(title_re='Select an output file name').print_control_identifiers()
-    app5.window(title_re='Select an output file name').File_name_Edit.set_text(output_file_name)
+
+    # split output_file_name into the directory path and the filename (because Mickysoft has changed the window !)
+    directory_path = os.path.dirname(output_file_name)
+    app5.window(title_re='Select an output file name') \
+        .Toolbar4_Edit.set_text(directory_path)
+
+    selected_filename = os.path.basename(output_file_name)
+    app5.window(title_re='Create a file in the required directory') \
+        .File_name_Edit.set_text(output_file_name)
+    # app5.window(title_re='Select an output file name').File_name_Edit.set_text(output_file_name)
     # app5.window(title_re='Select an output file name').print_control_identifiers()
 
-    # app4.window(title_re='Select a batch file').type_keys('%o')
     batch_split_button1 = app5.window(title_re='Select an output file name') \
         .child_window(title='Save', auto_id='1', control_type="Button")
     from pywinauto.controls.win32_controls import ButtonWrapper
@@ -730,6 +803,7 @@ if len(directories_to_process[0]) > 0:
 
         from pywinauto.application import Application
 
+        #app = Application(backend="uia").start('C:/Program Files (x86)/NRCD/NRCD.exe')
         app = Application(backend="uia").start('C:/Users/rjaques/Software/NRCD/Current Version/NRCD.exe')
 
         app.window(best_match='National Roads Condition Database',
