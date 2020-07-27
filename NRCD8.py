@@ -76,26 +76,11 @@ def data_loading(app, file_path_variable):
         # app2.window(title_re='Select a batch file').type_keys(filename, with_spaces=True)
 
         # split filename[0] into the directory path and the filename (because Mickysoft has changed the window !)
-        directory_path = os.path.dirname(filename)
-        print(directory_path)
-        selected_filename = os.path.basename(filename)
+        #directory_path = os.path.dirname(filename)
+        #print(directory_path)
+        #selected_filename = os.path.basename(filename)
         app2.window(title_re='Select a batch file') \
-            .File_name_Edit.set_text(selected_filename)
-        # app2.window(title_re='Select a batch file').print_control_identifiers()
-        # app2.window(title_re='Select a batch file') \
-        #     .child_window(title='Toolbar4').click()
-        # app2.window(title_re='Select a batch file').print_control_identifiers()
-        toolbar2 = app2.window(title_re='Select a batch file')  # \
-        #     .child_window(title_re='Address', auto_id='1001')
-        #     .child_window(title_re='Address', control_type="ToolBar", auto_id='1001')
-        # file_path_address = toolbar2['Address band toolbarToolbar'].click_input()
-        # file_path_address = toolbar2.child_window(title="All locations", control_type="SplitButton").click_input()
-        toolbar2.child_window(title="All locations", control_type="SplitButton").click_input()
-        # toolbar2.child_window(title_re='Select a batch file').print_control_identifiers()
-        raw_directory_path = r'{}'.format(directory_path)
-        toolbar2.child_window(title_re='Address', auto_id='41477', class_name='Edit')\
-            .set_edit_text(raw_directory_path).click_input()
-        #toolbar2.child_window(title="Button24", control_type="Button").click()
+            .File_name_Edit.set_text(filename)
 
         time.sleep(15)
         # toolbar2.print_control_identifiers()
@@ -144,23 +129,32 @@ def data_loading(app, file_path_variable):
 
         # app.window(best_match='National Roads Condition Database - Version', top_level_only=True).child_window(
         #   best_match='OK').click()
+        app.window(best_match='National Roads Condition Database - Version', top_level_only=True) \
+            .child_window(best_match='Create Batch file').click()
+
+        #filename = filename.replace('/', '\\')
+        #print("\nfile exists", filename)
+        #time.sleep(15)
+        #app2 = Application(backend="uia").connect(title_re='Select a batch file', visible_only=True)
+        # print("\nConnect app2 filename is ", filename)
 
         file_search_variable = (file_path_variable + '/*.hmd').replace('/', '\\')
         print("\nfile_search_variable = ", file_search_variable)
         filename = glob.glob(file_search_variable)
         # filename = filename[0]
-        print("\nFile found : ", filename[0])
 
+        print("\nFile found : ", filename)
+        filename = filename[1].replace('/', '\\')
         time.sleep(20)
 
         # click on 'Create Batch File' then OK on the following window
 
-        app.window(best_match='National Roads Condition Database - Version *', top_level_only=True) \
-            .child_window(best_match='Create Batch file').click()
+        # app.window(best_match='National Roads Condition Database') \
+        #    .child_window(best_match='Create Batch file').click()
 
         time.sleep(30)
 
-        app.window(best_match='National Roads Condition Database  - Version *') \
+        app.window(best_match='National Roads Condition Database') \
             .child_window(best_match='NRCD') \
             .child_window(best_match='OK').click()
 
@@ -180,21 +174,25 @@ def data_loading(app, file_path_variable):
         # from pywinauto.controls.win32_controls import EditWrapper
         # EditWrapper(edit_text_box2).set_text(filename)
 
+        #app.window(best_match='National Roads Condition Database  - Version *') \
+        #    .child_window(best_match='NRCD') \
+        #    .child_window(best_match='OK').click()
+
         # put the filename that was found into the filename box
         app3.window(title_re='Create a file in the required directory').print_control_identifiers()
 
-        app3.window(title_re='Create a file in the required directory') \
-            .child_window(title_re='Address').click()
-        app3.window(title_re='Create a file in the required directory').print_control_identifiers()
+        #app3.window(title_re='Create a file in the required directory') \
+         #   .child_window(title_re='Address').click()
+        #app3.window(title_re='Create a file in the required directory').print_control_identifiers()
 
         # split filename[0] into the directory path and the filename (because Mickysoft has changed the window !)
-        directory_path = os.path.dirname(filename[0])
-        app3.window(title_re='Create a file in the required directory') \
-            .Address_Edit.set_text(directory_path)
+        #directory_path = os.path.dirname(filename[0])
+        #app3.window(title_re='Create a file in the required directory') \
+        #    .Address_Edit.set_text(directory_path)
 
-        selected_filename = os.path.basename(filename[0])
+        #selected_filename = os.path.basename(filename[0])
         app3.window(title_re='Create a file in the required directory') \
-            .File_name_Edit.set_text(selected_filename)
+            .File_name_Edit.set_text(filename)
 
         # app3.window(title_re='Create a file in the required directory').type_keys(filename[0], with_spaces=True)
         # app3.window(title_re='Create a file in the required directory').print_control_identifiers()
@@ -327,13 +325,13 @@ def assign_la(app, file_path_variable):
     time.sleep(60)
 
     # split filename into the directory path and the filename (because Mickysoft has changed the window !)
-    directory_path = os.path.dirname(filename)
-    app4.window(title_re='Select a batch file') \
-        .Toolbar4_Edit.set_text(directory_path)
+    # directory_path = os.path.dirname(filename)
+    # app4.window(title_re='Select a batch file') \
+    #    .Toolbar4_Edit.set_text(directory_path)
 
     selected_filename = os.path.basename(filename)
     app4.window(title_re='Select a batch file') \
-        .File_name_Edit.set_text(selected_filename)
+        .File_name_Edit.set_text(filename)
     # app4.window(title_re='Select a batch file').File_name_Edit.set_text(filename)
     # app4.window(title_re='Select a batch file').print_control_identifiers()
 
@@ -342,6 +340,8 @@ def assign_la(app, file_path_variable):
         .child_window(auto_id='1', control_type="SplitButton")
     from pywinauto.controls.win32_controls import ButtonWrapper
     ButtonWrapper(batch_splitbutton1).click()
+    time.sleep(60)
+
     del app4
 
     # use the location of the BatchList.txt to extract the local authority. It's two from the end.
@@ -672,7 +672,7 @@ def scanner_qa(app, file_path_variable):
 
     # build output file name.
 
-    output_file_name = os.path.normpath("//trllimited/data/INF_ScannerQA/Audit_Reports/NRCD Data" + local_authority + "_" + year + ".csv")
+    output_file_name = os.path.normpath("//trllimited/data/INF_ScannerQA/Audit_Reports/NRCD Data/" + local_authority + "_" + year + ".csv")
     # output_file_name = os.path.normpath("C:/Users/rjaques/temp/Data/" + local_authority + "_" + year + ".csv")
 
     # add the year combination (year and '-' and  2 digit next year so
@@ -703,12 +703,12 @@ def scanner_qa(app, file_path_variable):
     # app5.window(title_re='Select an output file name').print_control_identifiers()
 
     # split output_file_name into the directory path and the filename (because Mickysoft has changed the window !)
-    directory_path = os.path.dirname(output_file_name)
-    app5.window(title_re='Select an output file name') \
-        .Toolbar4_Edit.set_text(directory_path)
+    #directory_path = os.path.dirname(output_file_name)
+    #app5.window(title_re='Select an output file name') \
+    #    .Toolbar4_Edit.set_text(directory_path)
 
-    selected_filename = os.path.basename(output_file_name)
-    app5.window(title_re='Create a file in the required directory') \
+    # selected_filename = os.path.basename(output_file_name)
+    app5.window(title_re='Select an output file name') \
         .File_name_Edit.set_text(output_file_name)
     # app5.window(title_re='Select an output file name').File_name_Edit.set_text(output_file_name)
     # app5.window(title_re='Select an output file name').print_control_identifiers()
