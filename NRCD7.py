@@ -1,4 +1,4 @@
-# from pywinauto.application import Application
+from pywinauto.application import Application
 import glob
 import logging
 import os
@@ -97,12 +97,13 @@ def data_loading(app, file_path_variable):
 
         # app.window(best_match='National Roads Condition Database - Version', top_level_only=True).child_window(
         #   best_match='OK').click()
+        #filename = filename.replace('/', '\\')
 
         file_search_variable = (file_path_variable + '/*.hmd').replace('/', '\\')
         print("\nfile_search_variable = ", file_search_variable)
         filename = glob.glob(file_search_variable)
-        # filename = filename[0]
-        print("\nFile found : ", filename[0])
+        filename = filename[1]
+        print("\nFile found : ", filename[1])
 
         time.sleep(20)
 
@@ -134,8 +135,9 @@ def data_loading(app, file_path_variable):
         # EditWrapper(edit_text_box2).set_text(filename)
 
         # put the filename that was found into the filename box
+
         app3.window(title_re='Create a file in the required directory') \
-            .File_name_Edit.set_text(filename[0])
+            .File_name_Edit.set_text(filename)
 
         # app3.window(title_re='Create a file in the required directory').type_keys(filename[0], with_spaces=True)
         # app3.window(title_re='Create a file in the required directory').print_control_identifiers()

@@ -719,17 +719,12 @@ if len(directories_to_process[0]) > 0:
         if len(file_path_variable) > 0:
             logger.info('Working with ' + file_path_variable)
 
-# logger.info('Working with ' + file_path_variable)
-# file_path_variable = filedialog.askdirectory(initialdir=curr_dir,
-# title='Please select a directory containing the data')
-# print("\nfile_path_variable = ", file_path_variable)
-
         from pywinauto.application import Application
 
         # For LIVE
-        # app = Application(backend="uia").start('C:/Program Files (x86)/NRCD/NRCD.exe')
+        app = Application(backend="uia").start('C:/Program Files (x86)/NRCD/NRCD.exe')
         # for test
-        app = Application(backend="uia").start('C:/Users/rjaques/Software/NRCD/Current Version/NRCD.exe')
+        # app = Application(backend="uia").start('C:/Users/rjaques/Software/NRCD/Current Version/NRCD.exe')
 
         app.window(best_match='National Roads Condition Database',
                    top_level_only=True).child_window(best_match='SCANNER').click()

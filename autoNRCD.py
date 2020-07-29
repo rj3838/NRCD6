@@ -6,8 +6,10 @@ import sys
 import time
 import tkinter
 from tkinter import filedialog
+
 # import pywinauto
 import pandas as pd
+from pywinauto.controls.uia_controls import ComboBoxWrapper
 
 
 def fun_directory_selector(request_string: str, selected_directory_list: list, search_directory):
@@ -141,9 +143,7 @@ def data_loading(app, file_path_variable):
 
     print(survey_contractor)
 
-     from pywinauto.controls.win32_controls import ComboBoxWrapper
-
-    surveyor_combobox = app.window(best_match='National Roads Condition Database') \
+    surveyor_combobox = app.window(best_match='National Roads Condition Database')\
         .child_window(best_match='Survey Contractor', control_type='Group') \
         .child_window(auto_id="3", control_type="ComboBox")
 
@@ -163,7 +163,7 @@ def data_loading(app, file_path_variable):
     # batchfile to find them
     logger.info('Starting loading with ' + filename[0])
 
-    time.sleep(60)
+    time.sleep(30)
 
     # wait for the loading to finish. It checks the number of windows open for NECD.exe. If these are less than
     # two the section is complete, otherwise it loops.
@@ -566,6 +566,7 @@ print('Start')
 
 logger = logging.getLogger('autoNRCD')
 logger.setLevel(logging.INFO)
+# logger.basicConfig(filename="//trllimited/data/INF_ScannerQAAudit_Reports/autoNRCD.log")
 
 # create console handler and set level to debug
 ch = logging.StreamHandler()
