@@ -15,15 +15,15 @@ from tkinter.filedialog import askopenfilename
 
 # select the initial (current) file to match
 
-Tk().withdraw() # we don't want a full GUI, so keep the root window from appearing
-initial_file: str = askopenfilename() # show an "Open" dialog box and return the path to the selected file
+Tk().withdraw()  # we don't want a full GUI, so keep the root window from appearing
+initial_file: str = askopenfilename()  # show an "Open" dialog box and return the path to the selected file
 print(initial_file)
+
 
 # Function to find all the files for that authority
 
 
 def fun_authority_file_search(file_path_variable: str):
-
     # get a list of the files matching the Authority of the selected file
 
     file_search_variable: str = file_path_variable.replace('/', '\\')
@@ -50,9 +50,8 @@ def fun_authority_file_search(file_path_variable: str):
 
 files_to_process: list = fun_authority_file_search(initial_file)
 
-initial_df: pd.DataFrame = pd.read_csv(initial_file,
-                                       dtype={"SectionLabel": "str",
-                                              "SectionID": "str"})
+initial_df: pd.DataFrame = pd.read_csv(initial_file, dtype={"SectionLabel": "str", "SectionID": "str"})
+#                                       low_memory=False)
 
 # probably don't need to sort but belt and braces...
 
@@ -61,14 +60,20 @@ sort_order: list = ['SectionLabel', 'SectionID', 'Lane', 'Class', 'UR', 'Chainag
 # group the data we are comparing to into the selection columns and the chainage for the selection
 # which will be the max(chainage) for the selection columns
 
-initial_df_short = initial_df.groupby(['SectionLabel', 'SectionID', 'Lane', 'Class'])['Chainage']\
+initial_df_short = initial_df.groupby(['SectionLabel', 'SectionID', 'Lane', 'Class'])['Chainage'] \
     .max().reset_index()
+
+initial_total_chainage = initial_df_short['Chainage'].sum()
+print('initial total chainage', initial_total_chainage)
 
 
 def func_data_calculation(initial_df_short: DataFrame,
                           match_df_short: DataFrame,
                           match_columns,
-                          match_class):
+                          match_class,
+                          initial_total_chainage):
+    print(match_columns)
+    print(match_class)
 
     working_df = initial_df_short.merge(match_df_short,
                                         on=match_columns,
@@ -77,25 +82,31 @@ def func_data_calculation(initial_df_short: DataFrame,
 
     working_df = working_df.loc[working_df["Class_initial"].isin(match_class)]
     count_of_matching_records = len(working_df)
-    print(count_of_matching_records)
+
+    print(count_of_matching_records, " rows")
     chainage_of_initial_class = working_df['Chainage_initial'].sum()
     chainage_of_matching_class = working_df['Chainage_match'].sum()
+    percentage_difference_to_total = (abs(initial_total_chainage - chainage_of_matching_class) /
+                             ((initial_total_chainage + chainage_of_matching_class) / 2)) * 100
+    print(percentage_difference_to_total, 'Percentage difference to year')
     percentage_difference = (abs(chainage_of_initial_class - chainage_of_matching_class) /
                              ((chainage_of_initial_class + chainage_of_matching_class) / 2)) * 100
-    print(chainage_of_initial_class, ' ', chainage_of_matching_class, ' ', percentage_difference)
+    print(chainage_of_initial_class, ' current metres ', chainage_of_matching_class, ' previous metres ',
+          percentage_difference, '% diff of selection')
 
 
 def fun_data_comparison(initial_df_short: DataFrame,
                         match_df_short: DataFrame,
                         match_columns,
                         match_class):
-
     print(match_columns, ' ', match_class)
 
     func_data_calculation(initial_df_short,
                           match_df_short,
                           match_columns,
-                          match_class)
+                          match_class,
+                          initial_total_chainage)
+
 
 # initial_df_short = initial_df.loc[:, sort_order]
 
@@ -104,13 +115,12 @@ def fun_data_comparison(initial_df_short: DataFrame,
 # remove the initial fie from the list to process
 
 # for each file in the list of previous year files
-
-
 for match_file in files_to_process:
 
     match_df = pd.read_csv(match_file,
                            dtype={"SectionLabel": "str",
-                                  "SectionID": "str"})
+                                  "SectionID": "str"},
+                           low_memory=False)
     # match_df_short = match_df.groupby(sort_order).max('Chainage')
 
     print(initial_file)
@@ -122,6 +132,9 @@ for match_file in files_to_process:
 
     match_df_short = match_df.groupby(['SectionLabel', 'SectionID', 'Lane', 'Class'])['Chainage'] \
         .max().reset_index()
+
+    match_total_chainage = match_df_short['Chainage'].sum()
+    print('match total chainage', match_total_chainage)
 
     # match_df_short.sort_values(by=sort_order, inplace=True)
 
@@ -139,76 +152,6 @@ for match_file in files_to_process:
 
         for match_class in match_class_sets:
             print(match_columns, ' ', match_class)
-            fun_data_comparison( initial_df_short, match_df_short, match_columns, match_class)
+            fun_data_comparison(initial_df_short, match_df_short, match_columns, match_class)
 
-    # working_df = initial_df_short.merge(match_df_short,
-    #                                      on=match_columns,
-    #                                     suffixes=('_initial', '_match'),
-    #                                      how='inner')
-
-    # join the initial and previous data frames on the following fields
-    # SectionLabel
-    # SectionID
-    # Lane (thats direction)
-    # Class
-    # UR (thats type)
-    # Length
-    # left_key: list = ['SectionLabel', 'SectionID', 'Lane']
-
-    # right_key: list = ['SectionLabel', 'SectionID', 'Lane', 'Class', 'UR', 'Chainage']
-
-    #all_merged_df = initial_df_short.merge(match_df_short,
-    #                                      on=match_all,
-     #                                     suffixes=('_initial', '_match'),
-     #                                     how='inner')
-
-    # all_merged_df = initial_df_short.join(match_df_short,
-     #                                  on=match_all,
-      #                                 suffixes=('_initial', '_match'),
-      #                                 how='left')
-
-    # print(merged_df.head())
-
-    # all_merged_df_remove_na = all_merged_df.dropna()
-
-    # remove rows where the two road classes do not match
-
-    #all_merged_df_with_matching_class = all_merged_df[(working_df['Class_initial'] == all_merged_df['Class_match'])]
-
-
-    # print(all_merged_df_remove_na.head())
-
-    # count_of_all_matching: int = len(all_merged_df_with_matching_class)
-    # chainage_of_initial_class = all_merged_df_with_matching_class['Chainage_initial'].sum()
-    # chainage_of_matching_class = all_merged_df_with_matching_class['Chainage_match'].sum()
-    #
-    # percentage_difference = (abs(chainage_of_initial_class - chainage_of_matching_class) /
-    #                          ((chainage_of_initial_class + chainage_of_matching_class) / 2)) * 100
-    # df_of_class_a: DataFrame = all_merged_df_with_matching_class.loc[all_merged_df_with_matching_class['Class_initial'].isin(['A']) ]
-    # count_of_all_matching_a_class: int = len(df_of_class_a)
-    # # count_of_all_matching_a_class: int = len(all_merged_df_remove_na.loc[(all_merged_df_remove_na['Class_initial'].isin(['A'])) ]) # select A roads
-    # # count_of_all_matching_a_class: int = len(all_merged_df_remove_na['Class_initial'].isin(['A']))  # select A roads
-    # df_of_class_b_and_c: DataFrame = all_merged_df_with_matching_class.loc[all_merged_df_with_matching_class['Class_initial'].isin(['B', 'C'])]
-    # count_of_all_matching_b_and_c_class: int = len(df_of_class_b_and_c)
-    # # count_of_all_matching_b_ana_c_class: int = len(all_merged_df_remove_na.loc[(all_merged_df_remove_na['Class_initial'].isin(['B', 'C']))])
-    # # count_of_all_matching_b_ana_c_class: int = len(all_merged_df_remove_na['Class_initial'].isin(['B', 'C']))
-    #
-    # print('Count of initial: ', len(initial_df_short))
-    # print('Count of match: ', len(match_df_short))
-    # print('Length of initial', all_merged_df_with_matching_class['Chainage_initial'].sum())
-    # print(chainage_of_initial_class)
-    # print(chainage_of_matching_class)
-    # print('Length of matching', all_merged_df_with_matching_class['Chainage_match'].sum())
-    # print('percentage difference', percentage_difference)
-    # print('Count of all matching: ', count_of_all_matching)
-    # # print('Length of initial', initial_df_short['Chainage'].sum(axis=1))
-    #
-    # print('Count of all matching A class: ', count_of_all_matching_a_class)
-    # print('Count of all matching B&C class: ', count_of_all_matching_b_and_c_class)
-
-    
-
-    # match initial selected file against the previous
-
-    # record match numbers
-
+#
