@@ -109,7 +109,7 @@ def fun_data_comparison(initial_df_short: DataFrame,
 
 
 # initial_df_short = initial_df.loc[:, sort_order]
-
+#
 # initial_df_short.sort_values(by=sort_order, inplace=True)
 
 # remove the initial fie from the list to process
