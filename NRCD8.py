@@ -240,7 +240,7 @@ def assign_la(app, file_path_variable):
 
     time.sleep(30)
 
-    #app.window(best_match='National Roads Condition Database') \
+    # app.window(best_match='National Roads Condition Database') \
     #    .child_window(title='NRCD').OK.click()
 
     # app.window(best_match='National Roads Condition Database - Version *') \
@@ -318,14 +318,14 @@ def assign_la(app, file_path_variable):
 
 
 
-    from pywinauto.controls.win32_controls import ComboBoxWrapper
-    ComboBoxWrapper(batch_combobox1).select(la_db_name)
+    import pywinauto.controls.win32_controls
+    pywinauto.controls.win32_controls.ComboBoxWrapper(batch_combobox1).select(la_db_name)
 
     batch_combobox2 = app.window(best_match='National Roads Condition Database - Version*') \
         .child_window(best_match='Local Authority Attribute', control_type="Group") \
         .child_window(auto_id='4', control_type="ComboBox")  # .wait('exists enabled visible ready')
 
-    ComboBoxWrapper(batch_combobox2).select(" 2020/21")
+    pywinauto.controls.win32_controls.ComboBoxWrapper(batch_combobox2).select(" 2020/21")
 
     time.sleep(15)
 
@@ -594,9 +594,9 @@ def scanner_qa(app, file_path_variable):
 
     # build output file name.
     # LIVE
-    output_file_name = os.path.normpath("//trllimited/data/INF_ScannerQA/Audit_Reports/NRCD Data/" + local_authority + "_" + year + ".csv")
+    # output_file_name = os.path.normpath("//trllimited/data/INF_ScannerQA/Audit_Reports/NRCD Data/" + local_authority + "_" + year + ".csv")
     # test
-    # output_file_name = os.path.normpath("C:/Users/rjaques/temp/Data/" + local_authority + "_" + year + ".csv")
+    output_file_name = os.path.normpath("C:/Users/rjaques/temp/Data/" + local_authority + "_" + year + ".csv")
 
     # add the year combination (year and '-' and  2 digit next year so
     # convert year string to numeric, add one, convert back to string and use the last 2 chars
