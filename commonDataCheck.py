@@ -22,7 +22,6 @@ print(initial_file)
 
 # Function to find all the files for that authority
 
-
 def fun_authority_file_search(file_path_variable: str):
     # get a list of the files matching the Authority of the selected file
 
@@ -64,7 +63,7 @@ initial_df_short = initial_df.groupby(['SectionLabel', 'SectionID', 'Lane', 'Cla
     .max().reset_index()
 
 initial_total_chainage = initial_df_short['Chainage'].sum()
-print('initial total chainage', initial_total_chainage)
+print('current total chainage', initial_total_chainage)
 
 
 def func_data_calculation(initial_df_short: DataFrame,
@@ -75,46 +74,66 @@ def func_data_calculation(initial_df_short: DataFrame,
     print(match_columns)
     print(match_class)
 
+    initial_chainage = initial_df_short['Chainage'].sum()
+
+    # Create a DF to work with, matching on the columns we are interested in.
+
     working_df = initial_df_short.merge(match_df_short,
                                         on=match_columns,
                                         suffixes=('_initial', '_match'),
                                         how='inner')
 
+    # select only the rows with the class of road we are looking for
     working_df = working_df.loc[working_df["Class_initial"].isin(match_class)]
     count_of_matching_records = len(working_df)
-
     print(count_of_matching_records, " rows")
-    chainage_of_initial_class = working_df['Chainage_initial'].sum()
+
+    # calculate the chainage of the initial class then the matching class
+    # chainage_of_initial_class = working_df['Chainage_initial'].sum()
     chainage_of_matching_class = working_df['Chainage_match'].sum()
-    percentage_difference_to_total = (abs(initial_total_chainage - chainage_of_matching_class) /
-                             ((initial_total_chainage + chainage_of_matching_class) / 2)) * 100
-    print(percentage_difference_to_total, 'Percentage difference to year')
-    percentage_difference = (abs(chainage_of_initial_class - chainage_of_matching_class) /
-                             ((chainage_of_initial_class + chainage_of_matching_class) / 2)) * 100
-    print(chainage_of_initial_class, ' current metres ', chainage_of_matching_class, ' previous metres ',
-          percentage_difference, '% diff of selection')
+
+    #
+    # percentage_difference_to_total = (abs(initial_total_chainage - chainage_of_matching_class) /
+    #                          ((initial_total_chainage + chainage_of_matching_class) / 2)) * 100
+    # print(percentage_difference_to_total, 'Percentage difference to year')
+    # percentage_difference = (abs(chainage_of_initial_class - chainage_of_matching_class) /
+    #                          ((chainage_of_initial_class + chainage_of_matching_class) / 2)) * 100
+    # print(chainage_of_initial_class, ' current metres ', chainage_of_matching_class, ' previous metres ',
+    #       percentage_difference, '% diff of selection')
+    #
+    # smallest_chainage = min([chainage_of_initial_class, chainage_of_matching_class])
+    # largest_chainage = max([chainage_of_initial_class, chainage_of_matching_class])
+
+    pc_chainage_match = (chainage_of_matching_class / initial_chainage) * 100
+
+    return pc_chainage_match
 
 
 def fun_data_comparison(initial_df_short: DataFrame,
                         match_df_short: DataFrame,
-                        match_columns,
-                        match_class):
-    print(match_columns, ' ', match_class)
+                        match_columns: list,
+                        match_class: list) -> float:
+    #    print(match_columns, ' ', match_class)
 
-    func_data_calculation(initial_df_short,
-                          match_df_short,
-                          match_columns,
-                          match_class,
-                          initial_total_chainage)
+    percentage_difference_to_total = func_data_calculation(initial_df_short,
+                                                           match_df_short,
+                                                           match_columns,
+                                                           match_class,
+                                                           initial_total_chainage)
+
+    # return  ((lambda: -9999, percentage_difference_to_total)[percentage_difference_to_total > 100]())
+
+    # return percentage_difference_to_total
+
+    # if percentage_difference_to_total > 100:
+    #     return -9999
+    # else:
+    return percentage_difference_to_total if percentage_difference_to_total < 100 else '-9999'
 
 
-# initial_df_short = initial_df.loc[:, sort_order]
-#
-# initial_df_short.sort_values(by=sort_order, inplace=True)
-
-# remove the initial fie from the list to process
-
+# THIS IS THE MAIN PROC
 # for each file in the list of previous year files
+
 for match_file in files_to_process:
 
     match_df = pd.read_csv(match_file,
@@ -134,7 +153,7 @@ for match_file in files_to_process:
         .max().reset_index()
 
     match_total_chainage = match_df_short['Chainage'].sum()
-    print('match total chainage', match_total_chainage)
+    print('previous total chainage', match_total_chainage)
 
     # match_df_short.sort_values(by=sort_order, inplace=True)
 
@@ -148,10 +167,26 @@ for match_file in files_to_process:
     match_b_and_c_class: list = ['B', 'C']
     match_class_sets = [match_all_class, match_a_class, match_b_and_c_class]
 
-    for match_columns in match_column_sets:
+    column_list = ['match_all', 'match_label_lane', 'match_id_lane']
+    row_list = ['match_all_class', 'match_a_class', 'match_b_and_c_class']
+    year_results_df = pd.DataFrame()
 
+    for match_column in match_column_sets:
+        column = str(match_column)
         for match_class in match_class_sets:
-            print(match_columns, ' ', match_class)
-            fun_data_comparison(initial_df_short, match_df_short, match_columns, match_class)
+            row = str(match_class)
+            percentage_difference_to_total = fun_data_comparison(initial_df_short,
+                                                                 match_df_short,
+                                                                 match_column,
+                                                                 match_class)
 
-#
+            # year_results_df.set_value(column, row, percentage_difference_to_total)
+            year_results_df.at[column, row] = percentage_difference_to_total
+
+            # row_index = year_results_df[percentage_difference_to_total].index.values[j]
+            # value = df.at[row_index, col_index]
+            # year_results_df.at(column, row, percentage_difference_to_total)
+
+    print(initial_file)
+    print(match_file)
+    print(year_results_df.to_string())
