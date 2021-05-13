@@ -13,11 +13,6 @@ import re
 from tkinter import Tk
 from tkinter.filedialog import askopenfilename
 
-# select the initial (current) file to match
-
-Tk().withdraw()  # we don't want a full GUI, so keep the root window from appearing
-initial_file: str = askopenfilename()  # show an "Open" dialog box and return the path to the selected file
-print(initial_file)
 
 
 # Function to find all the files for that authority
@@ -47,41 +42,27 @@ def fun_authority_file_search(file_path_variable: str):
     return previous_files_to_match
 
 
-files_to_process: list = fun_authority_file_search(initial_file)
-
-initial_df: pd.DataFrame = pd.read_csv(initial_file, dtype={"SectionLabel": "str", "SectionID": "str"})
-#                                       low_memory=False)
-
-# probably don't need to sort but belt and braces...
-
-sort_order: list = ['SectionLabel', 'SectionID', 'Lane', 'Class', 'UR', 'Chainage']
-
-# group the data we are comparing to into the selection columns and the chainage for the selection
-# which will be the max(chainage) for the selection columns
-
-initial_df_short = initial_df.groupby(['SectionLabel', 'SectionID', 'Lane', 'Class'])['Chainage'] \
-    .max().reset_index()
-
-initial_total_chainage = initial_df_short['Chainage'].sum()
-print('current total chainage', initial_total_chainage)
+def file_loading(load_file: str):
+    loaded_df = pd.read_csv(load_file, dtype={"SectionLabel": "str", "SectionID": "str"}, low_memory=False)
+    return loaded_df
 
 
-def func_data_calculation(initial_df_short: DataFrame,
-                          match_df_short: DataFrame,
+def func_data_calculation(initial_thin: DataFrame,
+                          match_thin: DataFrame,
                           match_columns,
                           match_class,
                           initial_total_chainage):
     print(match_columns)
     print(match_class)
 
-    initial_chainage = initial_df_short['Chainage'].sum()
+    initial_chainage = initial_thin['Chainage'].sum()
 
     # Create a DF to work with, matching on the columns we are interested in.
 
-    working_df = initial_df_short.merge(match_df_short,
+    working_df = initial_thin.merge(match_thin,
                                         on=match_columns,
                                         suffixes=('_initial', '_match'),
-                                        how='inner')
+                                        how='left')
 
     # select only the rows with the class of road we are looking for
     working_df = working_df.loc[working_df["Class_initial"].isin(match_class)]
@@ -89,7 +70,9 @@ def func_data_calculation(initial_df_short: DataFrame,
     print(count_of_matching_records, " rows")
 
     # calculate the chainage of the initial class then the matching class
-    # chainage_of_initial_class = working_df['Chainage_initial'].sum()
+    # matching class will be the same oo less
+
+    chainage_of_initial_class = working_df['Chainage_initial'].sum()
     chainage_of_matching_class = working_df['Chainage_match'].sum()
 
     #
@@ -103,20 +86,20 @@ def func_data_calculation(initial_df_short: DataFrame,
     #
     # smallest_chainage = min([chainage_of_initial_class, chainage_of_matching_class])
     # largest_chainage = max([chainage_of_initial_class, chainage_of_matching_class])
+    percentage_chainage_match = (chainage_of_matching_class / chainage_of_initial_class) * 100
+    # percentage_chainage_match = (chainage_of_matching_class / initial_total_chainage) * 100
 
-    pc_chainage_match = (chainage_of_matching_class / initial_chainage) * 100
-
-    return pc_chainage_match
+    return percentage_chainage_match
 
 
-def fun_data_comparison(initial_df_short: DataFrame,
-                        match_df_short: DataFrame,
+def fun_data_comparison(initial_thin: DataFrame,
+                        match_thin: DataFrame,
                         match_columns: list,
                         match_class: list) -> float:
     #    print(match_columns, ' ', match_class)
 
-    percentage_difference_to_total = func_data_calculation(initial_df_short,
-                                                           match_df_short,
+    percentage_difference_to_total = func_data_calculation(initial_df,
+                                                           match_thin,
                                                            match_columns,
                                                            match_class,
                                                            initial_total_chainage)
@@ -128,19 +111,47 @@ def fun_data_comparison(initial_df_short: DataFrame,
     # if percentage_difference_to_total > 100:
     #     return -9999
     # else:
-    return percentage_difference_to_total if percentage_difference_to_total < 100 else '-9999'
+    return percentage_difference_to_total
+
+
+def create_thin_df(long_df: DataFrame):
+    thin_df = long_df.groupby(['SectionLabel', 'SectionID', 'Lane', 'Class'])['Chainage'] \
+        .max().reset_index()
+
+    return thin_df
 
 
 # THIS IS THE MAIN PROC
+
+# select the initial (current) file to match
+
+Tk().withdraw()  # we don't want a full GUI, so keep the root window from appearing
+initial_file: str = askopenfilename()  # show an "Open" dialog box and return the path to the selected file
+print(initial_file)
+
+files_to_process: list = fun_authority_file_search(initial_file)
+
+initial_df: pd.DataFrame = file_loading(initial_file)
+
+# probably don't need to sort but belt and braces...
+
+sort_order: list = ['SectionLabel', 'SectionID', 'Lane', 'Class', 'UR', 'Chainage']
+
+# group the data we are comparing to into the selection columns and the chainage for the selection
+# which will be the max(chainage) for the selection columns
+
+initial_thin = create_thin_df(initial_df)
+
+initial_total_chainage = initial_thin['Chainage'].sum()
+print('current total chainage', initial_total_chainage)
+
 # for each file in the list of previous year files
 
 for match_file in files_to_process:
 
-    match_df = pd.read_csv(match_file,
-                           dtype={"SectionLabel": "str",
-                                  "SectionID": "str"},
-                           low_memory=False)
-    # match_df_short = match_df.groupby(sort_order).max('Chainage')
+    match_df = file_loading(match_file)
+
+    # match_thin = match_df.groupby(sort_order).max('Chainage')
 
     print(initial_file)
     print(match_file)
@@ -149,13 +160,12 @@ for match_file in files_to_process:
     # group the data we are comparing to into the selection columns and the chainage for the selection
     # which will be the max(chainage) for the selection columns
 
-    match_df_short = match_df.groupby(['SectionLabel', 'SectionID', 'Lane', 'Class'])['Chainage'] \
-        .max().reset_index()
+    match_thin = create_thin_df(match_df)
 
-    match_total_chainage = match_df_short['Chainage'].sum()
+    match_total_chainage = match_thin['Chainage'].sum()
     print('previous total chainage', match_total_chainage)
 
-    # match_df_short.sort_values(by=sort_order, inplace=True)
+    # match_thin.sort_values(by=sort_order, inplace=True)
 
     match_all: list = ['SectionLabel', 'SectionID', 'Lane']
     match_label_lane: list = ['SectionLabel', 'Lane']
@@ -175,8 +185,8 @@ for match_file in files_to_process:
         column = str(match_column)
         for match_class in match_class_sets:
             row = str(match_class)
-            percentage_difference_to_total = fun_data_comparison(initial_df_short,
-                                                                 match_df_short,
+            percentage_difference_to_total = fun_data_comparison(initial_thin,
+                                                                 match_thin,
                                                                  match_column,
                                                                  match_class)
 
