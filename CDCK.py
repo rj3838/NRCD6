@@ -22,6 +22,7 @@ print(initial_file)
 
 # Function to find all the files for that authority
 
+
 def fun_authority_file_search(file_path_variable: str):
     # get a list of the files matching the Authority of the selected file
 
@@ -63,7 +64,7 @@ initial_df_short = initial_df.groupby(['SectionLabel', 'SectionID', 'Lane', 'Cla
     .max().reset_index()
 
 initial_total_chainage = initial_df_short['Chainage'].sum()
-#print('current total chainage', initial_total_chainage)
+print('current total chainage', initial_total_chainage)
 
 
 def func_data_calculation(initial_df_short: DataFrame,
@@ -71,46 +72,29 @@ def func_data_calculation(initial_df_short: DataFrame,
                           match_columns,
                           match_class,
                           initial_total_chainage):
-    #print(match_columns)
-    #print(match_class)
-
-    # initial_chainage = initial_df_short['Chainage'].sum()
-    initial_df_class_count = initial_df_short.loc[initial_df_short["Class"].isin(match_class)].count()[0]
-    print(initial_df_class_count, ' initial_df_class_count')
-    # Create a DF to work with, matching on the columns we are interested in.
+    print(match_columns)
+    print(match_class)
 
     working_df = initial_df_short.merge(match_df_short,
                                         on=match_columns,
                                         suffixes=('_initial', '_match'),
                                         how='inner')
 
-    # select only the rows with the class of road we are looking for
+    working_df = working_df.loc[working_df["Class_initial"].isin(match_class)]
+    count_of_matching_records = len(working_df)
 
-    working_df = working_df["Class_match"].isin(match_class)
-    #count_of_matching_records = working_df["Class_match"].isin(match_class).count()[0]
-    count_of_matching_records = working_df.shape[0]
-    #print(count_of_matching_records, " rows")
+    print(count_of_matching_records, " rows")
+    chainage_of_initial_class = working_df['Chainage_initial'].sum()
+    chainage_of_matching_class = working_df['Chainage_match'].sum()
+    percentage_difference_to_total = (abs(initial_total_chainage - chainage_of_matching_class) /
+                             ((initial_total_chainage + chainage_of_matching_class) / 2)) * 100
+    print(percentage_difference_to_total, 'Percentage difference to year')
+    percentage_difference = (abs(chainage_of_initial_class - chainage_of_matching_class) /
+                             ((chainage_of_initial_class + chainage_of_matching_class) / 2)) * 100
+    print(chainage_of_initial_class, ' current metres ', chainage_of_matching_class, ' previous metres ',
+          percentage_difference, '% diff of selection')
 
-    # calculate the chainage of the initial class then the matching class
-    # chainage_of_initial_class = working_df['Chainage_initial'].sum()
-    # chainage_of_matching_class = working_df['Chainage_match'].sum()
-    count_of_matching_class = working_df.shape[0]
-
-    #
-    # percentage_difference_to_total = (abs(initial_total_chainage - chainage_of_matching_class) /
-    #                          ((initial_total_chainage + chainage_of_matching_class) / 2)) * 100
-    # print(percentage_difference_to_total, 'Percentage difference to year')
-    # percentage_difference = (abs(chainage_of_initial_class - chainage_of_matching_class) /
-    #                          ((chainage_of_initial_class + chainage_of_matching_class) / 2)) * 100
-    # print(chainage_of_initial_class, ' current metres ', chainage_of_matching_class, ' previous metres ',
-    #       percentage_difference, '% diff of selection')
-    #
-    # smallest_chainage = min([chainage_of_initial_class, chainage_of_matching_class])
-    # largest_chainage = max([chainage_of_initial_class, chainage_of_matching_class])
-
-    pc_match = (count_of_matching_class / initial_df_class_count) * 100
-
-    return pc_match
+    return percentage_difference_to_total
 
 
 def fun_data_comparison(initial_df_short: DataFrame,
@@ -125,20 +109,16 @@ def fun_data_comparison(initial_df_short: DataFrame,
                                                            match_class,
                                                            initial_total_chainage)
 
-    # return  ((lambda: -9999, percentage_difference_to_total)[percentage_difference_to_total > 100]())
-
-    # return percentage_difference_to_total
-
-    # if percentage_difference_to_total > 100:
-    #     return -9999
-    # else:
-    #return percentage_difference_to_total if percentage_difference_to_total < 100 else '-9999'
-    return percentage_difference_to_total #if percentage_difference_to_total < 100 else '-9999'
+    return percentage_difference_to_total
 
 
-# THIS IS THE MAIN PROC
+# initial_df_short = initial_df.loc[:, sort_order]
+#
+# initial_df_short.sort_values(by=sort_order, inplace=True)
+
+# remove the initial fie from the list to process
+
 # for each file in the list of previous year files
-
 for match_file in files_to_process:
 
     match_df = pd.read_csv(match_file,
@@ -158,7 +138,7 @@ for match_file in files_to_process:
         .max().reset_index()
 
     match_total_chainage = match_df_short['Chainage'].sum()
-    #print('previous total chainage', match_total_chainage)
+    print('previous total chainage', match_total_chainage)
 
     # match_df_short.sort_values(by=sort_order, inplace=True)
 
@@ -185,13 +165,8 @@ for match_file in files_to_process:
                                                                  match_column,
                                                                  match_class)
 
-            # year_results_df.set_value(column, row, percentage_difference_to_total)
-            year_results_df.at[column, row] = percentage_difference_to_total
+            year_results_df.set_value(column, row, percentage_difference_to_total)
 
-            # row_index = year_results_df[percentage_difference_to_total].index.values[j]
-            # value = df.at[row_index, col_index]
-            # year_results_df.at(column, row, percentage_difference_to_total)
-
-    #print(initial_file)
-    #print(match_file)
-    print(year_results_df.to_string())
+    print(initial_file)
+    print(match_file)
+    print(year_results_df)

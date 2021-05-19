@@ -137,6 +137,10 @@ def data_loading(app, file_path_variable):
     elif "G-L" in file_path_variable:
         survey_contractor: str = "Ginger-Lehmann"
 
+        # else if the directory string contains 'G-L' select survey contractor 'Ginger-Lehmann'
+    elif "PTS" in file_path_variable:
+        survey_contractor: str = "PTS"
+
         # it's not one of the two we know about. Should another contractor start surveying then add another 'elif'
     else:
         survey_contractor = "Unknown"
