@@ -1,22 +1,13 @@
 from pandas import DataFrame
 # from pywinauto.application import Application
 import glob
-# import logging
-# import os
-# import sys
-# import time
-# import tkinter
-# from tkinter import filedialog
-# import pywinauto
 import pandas as pd
 import re
 from tkinter import Tk
 from tkinter.filedialog import askopenfilename
 
 
-
 # Function to find all the files for that authority
-
 def fun_authority_file_search(file_path_variable: str):
     # get a list of the files matching the Authority of the selected file
 
@@ -24,14 +15,11 @@ def fun_authority_file_search(file_path_variable: str):
 
     # replace the year from the filename for a generic search [1-3][0-9]{3}
     # file_search_variable: str = re.match(r'.*20[0-9]{2}', file_search_variable)
-    # year_str: str = re.match(r'20[0-9]{2}', file_search_variable)
+
     year_str: str = (re.findall(r'20[0-9]{2}', file_search_variable))[-1]
     file_search_variable = file_search_variable.replace(year_str, "*")
-    year_num: int = int(year_str)
-    year_num = year_num - 1
 
     # do a generic search to return a list of files and reverse it
-
     previous_files_to_match = glob.glob(file_search_variable)
 
     # remove the first file as it is the initial file (highest year) and reverse it
@@ -47,87 +35,80 @@ def file_loading(load_file: str):
     return loaded_df
 
 
-def func_data_calculation(initial_thin: DataFrame,
-                          match_thin: DataFrame,
-                          match_columns,
-                          match_class,
-                          initial_total_chainage):
-    print(match_columns)
-    print(match_class)
+def func_data_calculation(initial_thin_fdc: DataFrame,
+                          match_thin_fdc: DataFrame,
+                          match_columns_fdc: list,
+                          match_class_fdc: list) -> float:
+    """
+    :param match_class_fdc:
+    :param match_thin_fdc:
+    :param initial_thin_fdc:
+    :type match_columns_fdc: object
+    """
 
-    initial_chainage = initial_thin['Chainage'].sum()
+    initial_class_df = initial_thin_fdc.loc[initial_thin_fdc["Class"].isin(match_class_fdc)]
+
+    match_class_df = match_thin_fdc.loc[match_thin_fdc["Class"].isin(match_class_fdc)]
 
     # Create a DF to work with, matching on the columns we are interested in.
+    match_columns_for_merge: list = match_columns_fdc
+    match_columns_for_merge.append("Chainage")
 
-    working_df = initial_thin.merge(match_thin,
-                                        on=match_columns,
-                                        suffixes=('_initial', '_match'),
-                                        how='left')
+    match_columns_for_merge = list(dict.fromkeys(match_columns_for_merge))
+
+    # Remove duplicates
+    match_class_df = match_class_df.drop_duplicates(subset=match_columns_for_merge, keep='first')
+
+    working_df = pd.merge(initial_class_df,
+                          match_class_df,
+                          on=match_columns_for_merge,
+                          suffixes=('_initial', '_match'),
+                          how='inner')
 
     # select only the rows with the class of road we are looking for
-    working_df = working_df.loc[working_df["Class_initial"].isin(match_class)]
-    count_of_matching_records = len(working_df)
-    print(count_of_matching_records, " rows")
+    # initial_thin: DataFrame = create_thin_df(initial_df)
 
-    # calculate the chainage of the initial class then the matching class
-    # matching class will be the same oo less
+    # count of initial then matching
+    count_of_initial_records: int = initial_class_df.shape[0]
 
-    chainage_of_initial_class = working_df['Chainage_initial'].sum()
-    chainage_of_matching_class = working_df['Chainage_match'].sum()
+    count_of_matching_records: int = working_df.shape[0]
 
-    #
-    # percentage_difference_to_total = (abs(initial_total_chainage - chainage_of_matching_class) /
-    #                          ((initial_total_chainage + chainage_of_matching_class) / 2)) * 100
-    # print(percentage_difference_to_total, 'Percentage difference to year')
-    # percentage_difference = (abs(chainage_of_initial_class - chainage_of_matching_class) /
-    #                          ((chainage_of_initial_class + chainage_of_matching_class) / 2)) * 100
-    # print(chainage_of_initial_class, ' current metres ', chainage_of_matching_class, ' previous metres ',
-    #       percentage_difference, '% diff of selection')
-    #
-    # smallest_chainage = min([chainage_of_initial_class, chainage_of_matching_class])
-    # largest_chainage = max([chainage_of_initial_class, chainage_of_matching_class])
-    percentage_chainage_match = (chainage_of_matching_class / chainage_of_initial_class) * 100
-    # percentage_chainage_match = (chainage_of_matching_class / initial_total_chainage) * 100
+    percentage_match: float = (count_of_matching_records / count_of_initial_records) * 100
 
-    return percentage_chainage_match
+    del match_class_df, match_columns_fdc, match_columns_for_merge
+
+    return percentage_match
 
 
-def fun_data_comparison(initial_thin: DataFrame,
-                        match_thin: DataFrame,
-                        match_columns: list,
-                        match_class: list) -> float:
-    #    print(match_columns, ' ', match_class)
+def fun_data_comparison(initial_thin_comp: DataFrame,
+                        match_thin_comp: DataFrame,
+                        match_columns_comp: list,
+                        match_class_comp: list) -> float:
+    comp_percentage_difference_to_total = func_data_calculation(initial_thin_comp,
+                                                                match_thin_comp,
+                                                                match_columns_comp,
+                                                                match_class_comp)
 
-    percentage_difference_to_total = func_data_calculation(initial_df,
-                                                           match_thin,
-                                                           match_columns,
-                                                           match_class,
-                                                           initial_total_chainage)
-
-    # return  ((lambda: -9999, percentage_difference_to_total)[percentage_difference_to_total > 100]())
-
-    # return percentage_difference_to_total
-
-    # if percentage_difference_to_total > 100:
-    #     return -9999
-    # else:
-    return percentage_difference_to_total
+    return comp_percentage_difference_to_total
 
 
-def create_thin_df(long_df: DataFrame):
-    thin_df = long_df.groupby(['SectionLabel', 'SectionID', 'Lane', 'Class'])['Chainage'] \
-        .max().reset_index()
+def create_thin_df(long_df: DataFrame) -> DataFrame:
+
+    thin_df = long_df[['SectionLabel', 'SectionID', 'Lane', 'Class', 'Chainage']]
+    # round chainage to the nearest 10m and drop the duplicates if any
+    thin_df = thin_df.round({'Chainage': -1})
+    thin_df.drop_duplicates(['SectionLabel', 'SectionID', 'Lane', 'Class', 'Chainage'], keep='last', inplace=True)
 
     return thin_df
 
 
+#
 # THIS IS THE MAIN PROC
-
+#
 # select the initial (current) file to match
 
 Tk().withdraw()  # we don't want a full GUI, so keep the root window from appearing
 initial_file: str = askopenfilename()  # show an "Open" dialog box and return the path to the selected file
-print(initial_file)
 
 files_to_process: list = fun_authority_file_search(initial_file)
 
@@ -138,12 +119,10 @@ initial_df: pd.DataFrame = file_loading(initial_file)
 sort_order: list = ['SectionLabel', 'SectionID', 'Lane', 'Class', 'UR', 'Chainage']
 
 # group the data we are comparing to into the selection columns and the chainage for the selection
-# which will be the max(chainage) for the selection columns
+# initial_thin = pd.DataFrame()
+# match_thin = pd.DataFrame()
 
-initial_thin = create_thin_df(initial_df)
-
-initial_total_chainage = initial_thin['Chainage'].sum()
-print('current total chainage', initial_total_chainage)
+initial_thin: DataFrame = create_thin_df(initial_df)
 
 # for each file in the list of previous year files
 
@@ -151,21 +130,9 @@ for match_file in files_to_process:
 
     match_df = file_loading(match_file)
 
-    # match_thin = match_df.groupby(sort_order).max('Chainage')
-
-    print(initial_file)
-    print(match_file)
-
     # reduce the columns we are dealing with so
-    # group the data we are comparing to into the selection columns and the chainage for the selection
-    # which will be the max(chainage) for the selection columns
 
-    match_thin = create_thin_df(match_df)
-
-    match_total_chainage = match_thin['Chainage'].sum()
-    print('previous total chainage', match_total_chainage)
-
-    # match_thin.sort_values(by=sort_order, inplace=True)
+    match_thin: DataFrame = create_thin_df(match_df)
 
     match_all: list = ['SectionLabel', 'SectionID', 'Lane']
     match_label_lane: list = ['SectionLabel', 'Lane']
@@ -185,18 +152,18 @@ for match_file in files_to_process:
         column = str(match_column)
         for match_class in match_class_sets:
             row = str(match_class)
-            percentage_difference_to_total = fun_data_comparison(initial_thin,
-                                                                 match_thin,
-                                                                 match_column,
-                                                                 match_class)
+            # the data is in initial thin (current year) and match thin (matching year) so pass it to the calculation.
+            percentage_difference_to_total: float = func_data_calculation(initial_thin,
+                                                                          match_thin,
+                                                                          match_column,
+                                                                          match_class)
 
-            # year_results_df.set_value(column, row, percentage_difference_to_total)
             year_results_df.at[column, row] = percentage_difference_to_total
 
-            # row_index = year_results_df[percentage_difference_to_total].index.values[j]
-            # value = df.at[row_index, col_index]
-            # year_results_df.at(column, row, percentage_difference_to_total)
+    # store the results
 
-    print(initial_file)
-    print(match_file)
-    print(year_results_df.to_string())
+    with open("//trllimited/data/INF_ScannerQA/Audit_Reports/outputTest.txt", "a") as output_file:
+        print(" ", file=output_file)
+        print(initial_file, file=output_file)
+        print(match_file, file=output_file)
+        print(year_results_df.to_string(), file=output_file)  # dataframe containing the results
