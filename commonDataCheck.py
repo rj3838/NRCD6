@@ -108,7 +108,19 @@ def create_thin_df(long_df: DataFrame) -> DataFrame:
 # select the initial (current) file to match
 
 Tk().withdraw()  # we don't want a full GUI, so keep the root window from appearing
-initial_file: str = askopenfilename()  # show an "Open" dialog box and return the path to the selected file
+
+# when running standalone ask for the filenames to start with otherwise take that from the
+# calling the common date check. (_name_ is not _main_)
+
+initial_file: str = ""
+
+if __name__ == "__main__":
+    initial_file: str = askopenfilename()
+else:
+    # initial_file: str = passed_in_file: str
+    pass
+
+# show an "Open" dialog box and return the path to the selected file
 
 files_to_process: list = fun_authority_file_search(initial_file)
 
