@@ -101,81 +101,83 @@ def create_thin_df(long_df: DataFrame) -> DataFrame:
 
     return thin_df
 
-
 #
 # THIS IS THE MAIN PROC
 #
 # select the initial (current) file to match
 
-Tk().withdraw()  # we don't want a full GUI, so keep the root window from appearing
 
-# when running standalone ask for the filenames to start with otherwise take that from the
-# calling the common date check. (_name_ is not _main_)
+def datacheckmain(file_to_check: str):
 
-initial_file: str = ""
+    # if the file to check string is empty
+    if not file_to_check:
+        print("A", file_to_check)
+        Tk().withdraw()  # we don't want a full GUI, so keep the root window from appearing
+        initial_file: str = askopenfilename()  # show an "Open" dialog box and return the path to the selected file
+    else:  # use what is passed in
+        print("b", file_to_check)
+        initial_file = file_to_check
 
-if __name__ == "__main__":
-    initial_file: str = askopenfilename()
-else:
-    # initial_file: str = passed_in_file: str
-    pass
+    files_to_process: list = fun_authority_file_search(initial_file)
 
-# show an "Open" dialog box and return the path to the selected file
+    initial_df: pd.DataFrame = file_loading(initial_file)
 
-files_to_process: list = fun_authority_file_search(initial_file)
+    # probably don't need to sort but belt and braces...
 
-initial_df: pd.DataFrame = file_loading(initial_file)
+    sort_order: list = ['SectionLabel', 'SectionID', 'Lane', 'Class', 'UR', 'Chainage']
 
-# probably don't need to sort but belt and braces...
+    # group the data we are comparing to into the selection columns and the chainage for the selection
+    # initial_thin = pd.DataFrame()
+    # match_thin = pd.DataFrame()
 
-sort_order: list = ['SectionLabel', 'SectionID', 'Lane', 'Class', 'UR', 'Chainage']
+    initial_thin: DataFrame = create_thin_df(initial_df)
 
-# group the data we are comparing to into the selection columns and the chainage for the selection
-# initial_thin = pd.DataFrame()
-# match_thin = pd.DataFrame()
+    # for each file in the list of previous year files
 
-initial_thin: DataFrame = create_thin_df(initial_df)
+    for match_file in files_to_process:
 
-# for each file in the list of previous year files
+        match_df = file_loading(match_file)
 
-for match_file in files_to_process:
+        # reduce the columns we are dealing with so
 
-    match_df = file_loading(match_file)
+        match_thin: DataFrame = create_thin_df(match_df)
 
-    # reduce the columns we are dealing with so
+        match_all: list = ['SectionLabel', 'SectionID', 'Lane']
+        match_label_lane: list = ['SectionLabel', 'Lane']
+        match_id_lane: list = ['SectionID', 'Lane']
+        match_column_sets = [match_all, match_label_lane, match_id_lane]
 
-    match_thin: DataFrame = create_thin_df(match_df)
+        match_all_class: list = ['A', 'B', 'C']
+        match_a_class: list = ['A']
+        match_b_and_c_class: list = ['B', 'C']
+        match_class_sets = [match_all_class, match_a_class, match_b_and_c_class]
 
-    match_all: list = ['SectionLabel', 'SectionID', 'Lane']
-    match_label_lane: list = ['SectionLabel', 'Lane']
-    match_id_lane: list = ['SectionID', 'Lane']
-    match_column_sets = [match_all, match_label_lane, match_id_lane]
+        column_list = ['match_all', 'match_label_lane', 'match_id_lane']
+        row_list = ['match_all_class', 'match_a_class', 'match_b_and_c_class']
+        year_results_df = pd.DataFrame()
 
-    match_all_class: list = ['A', 'B', 'C']
-    match_a_class: list = ['A']
-    match_b_and_c_class: list = ['B', 'C']
-    match_class_sets = [match_all_class, match_a_class, match_b_and_c_class]
+        for match_column in match_column_sets:
+            column = str(match_column)
+            for match_class in match_class_sets:
+                row = str(match_class)
+                # the data is in initial thin (current year) and match thin (matching year) so pass it to the calculation.
+                percentage_difference_to_total: float = func_data_calculation(initial_thin,
+                                                                              match_thin,
+                                                                              match_column,
+                                                                              match_class)
 
-    column_list = ['match_all', 'match_label_lane', 'match_id_lane']
-    row_list = ['match_all_class', 'match_a_class', 'match_b_and_c_class']
-    year_results_df = pd.DataFrame()
+                year_results_df.at[column, row] = percentage_difference_to_total
 
-    for match_column in match_column_sets:
-        column = str(match_column)
-        for match_class in match_class_sets:
-            row = str(match_class)
-            # the data is in initial thin (current year) and match thin (matching year) so pass it to the calculation.
-            percentage_difference_to_total: float = func_data_calculation(initial_thin,
-                                                                          match_thin,
-                                                                          match_column,
-                                                                          match_class)
+        # store the results
 
-            year_results_df.at[column, row] = percentage_difference_to_total
+        with open("//trllimited/data/INF_ScannerQA/Audit_Reports/outputTest.txt", "a") as output_file:
+            print(" ", file=output_file)
+            print(initial_file, file=output_file)
+            print(match_file, file=output_file)
+            print(year_results_df.to_string(), file=output_file)  # dataframe containing the results
 
-    # store the results
 
-    with open("//trllimited/data/INF_ScannerQA/Audit_Reports/outputTest.txt", "a") as output_file:
-        print(" ", file=output_file)
-        print(initial_file, file=output_file)
-        print(match_file, file=output_file)
-        print(year_results_df.to_string(), file=output_file)  # dataframe containing the results
+# call the datacheckmain
+
+if __name__ == '__main__':
+    datacheckmain("")

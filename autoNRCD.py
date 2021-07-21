@@ -241,7 +241,7 @@ def assign_la(app, file_path_variable):
         .child_window(best_match='Local Authority Attribute', control_type="Group") \
         .child_window(auto_id='4', control_type="ComboBox")  # .wait('exists enabled visible ready')
 
-    ComboBoxWrapper(batch_combobox2).select(" 2019/20")
+    ComboBoxWrapper(batch_combobox2).select(" 2021/22")
 
     time.sleep(15)
 
@@ -315,7 +315,7 @@ def fitting(app):
         .child_window(best_match='Year options:', auto_id="21", control_type="Group") \
         .child_window(auto_id='24', control_type="ComboBox")
 
-    ComboBoxWrapper(batch_combobox24).select(" 2019/20")
+    ComboBoxWrapper(batch_combobox24).select(" 2021/22")
 
     time.sleep(5)
 
@@ -396,7 +396,7 @@ def assign_urb_rural(app):
 
     ComboBoxWrapper(groupcontrol.child_window(auto_id="15",
                                               control_type="ComboBox")) \
-        .select(" 2019/20")
+        .select(" 2021/22")
 
     app.window(best_match='National Roads Condition Database').child_window(best_match='OK').click()
 
@@ -493,7 +493,7 @@ def scanner_qa(app, file_path_variable):
                                                control_type="ComboBox")).select(la_db_name)
 
     ComboBoxWrapper(group_control.child_window(auto_id="25",
-                                               control_type="ComboBox")).select(" 2019/20")
+                                               control_type="ComboBox")).select(" 2021/22")
 
     # Export the data
 
@@ -557,6 +557,12 @@ def scanner_qa(app, file_path_variable):
     # Wait patiently
 
     logger.info(local_authority + ' QA output complete')
+
+    import commonDataCheck as cdck
+
+    # filename = ""
+    # filename = "//trllimited/data/INF_ScannerQA/Audit_Reports/NRCD Data/England/Buckinghamshire_2021.csv"
+    cdck.datacheckmain(output_file_name)
 
     return  # back to main code block
 
@@ -641,5 +647,11 @@ if len(directories_to_process[0]) > 0:
         # remove references to the previously opened instance of NRCD just to be tidy...
 
         del app
+
+        import commonDataCheck as cdck
+
+        # filename = ""
+        # filename = "//trllimited/data/INF_ScannerQA/Audit_Reports/NRCD Data/England/Buckinghamshire_2021.csv"
+        cdck.datacheckmain(filename)
 
 sys.exit()
