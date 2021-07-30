@@ -111,11 +111,11 @@ def datacheckmain(file_to_check: str):
 
     # if the file to check string is empty
     if not file_to_check:
-        print("A", file_to_check)
+        # print("A", file_to_check)
         Tk().withdraw()  # we don't want a full GUI, so keep the root window from appearing
         initial_file: str = askopenfilename()  # show an "Open" dialog box and return the path to the selected file
     else:  # use what is passed in
-        print("b", file_to_check)
+        # print("b", file_to_check)
         initial_file = file_to_check
 
     files_to_process: list = fun_authority_file_search(initial_file)
