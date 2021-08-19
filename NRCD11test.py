@@ -747,7 +747,7 @@ logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
 #                    filename='C:/Users/rjaques/AutoNRCD_test.log',
                     filename='//trllimited/data/INF_ScannerQA/AutoNRCD_log.txt',
-                    filemode='w')
+                    filemode='a')
 
 logger = logging.getLogger('autoNRCD')
 #logger.setLevel(logging.INFO)
