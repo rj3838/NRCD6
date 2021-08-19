@@ -33,7 +33,7 @@ def nrcd_running_check(number_of_windows: str):
     tb = Application(backend="uia").connect(title='Taskbar')  # backend is important!!!
     running_apps = tb.Taskbar.child_window(title="Running applications", control_type="ToolBar")
 
-    nrcd_windows = "NRCD - " + number_of_windows + " running windows"
+    nrcd_windows = "NRCD.exe - " + number_of_windows + " running windows"
     print('Looking for', nrcd_windows)
 
     print([w.window_text() for w in running_apps.children()])
@@ -657,9 +657,11 @@ def scanner_qa(app, file_path_variable):
 
     # build output file name.
     # LIVE
-    # output_file_name = os.path.normpath("//trllimited/data/INF_ScannerQA/Audit_Reports/NRCD Data/" + nation + "/" + local_authority + "_" + year + ".csv")
+    # output_file_name = os.path.normpath("//trllimited/data/INF_ScannerQA/Audit_Reports/NRCD Data/" + nation + "/" +
+    #                                       local_authority + "_" + year + ".csv")
     # test
-    output_file_name = os.path.normpath("C:/Users/rjaques/temp/Data/" + nation + "/" + local_authority + "_" + year + ".csv")
+    output_file_name = os.path.normpath("C:/Users/rjaques/temp/Data/" + nation + "/" + local_authority + "_" +
+                                        year + ".csv")
 
     # add the year combination (year and '-' and  2 digit next year so
     # convert year string to numeric, add one, convert back to string and use the last 2 chars
@@ -741,8 +743,14 @@ root.withdraw()
 
 print('Start')
 
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
+#                    filename='C:/Users/rjaques/AutoNRCD_test.log',
+                    filename='//trllimited/data/INF_ScannerQA/AutoNRCD_log.txt',
+                    filemode='w')
+
 logger = logging.getLogger('autoNRCD')
-logger.setLevel(logging.INFO)
+#logger.setLevel(logging.INFO)
 
 # create console handler and set level to debug
 ch = logging.StreamHandler()
