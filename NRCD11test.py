@@ -97,7 +97,7 @@ def data_loading(app, file_path_variable):
             .child_window(best_match='Select Batch file').click()
 
         filename = filename.replace('/', '\\')
-        print("\nfile exists", filename)
+        print("\nfile exists using ", filename)
         time.sleep(15)
 
         # check existence of the app2 variable if it is there destroy it as connecting to the file selection
@@ -127,7 +127,7 @@ def data_loading(app, file_path_variable):
 
     else:
         # else pick the first .hmd file and use 'Create Batch File'
-        print("\nBatchfile file missing")
+        print("\nBatchfile file missing, creating a new file")
 
         time.sleep(30)
 
@@ -224,7 +224,7 @@ def data_loading(app, file_path_variable):
     else:
         survey_contractor = "Unknown contractor"
 
-    print(survey_contractor)
+    print("The survey contractor is" + survey_contractor)
 
     from pywinauto.controls.win32_controls import ComboBoxWrapper
 
@@ -767,7 +767,7 @@ logger.addHandler(ch)
 curr_dir = os.getcwd()
 
 logger.info('Current directory ' + curr_dir)
-print('ask directory')
+print('asking for directory')
 
 # root_win = tkinter.Tk()
 # root.withdraw()
@@ -781,6 +781,7 @@ directories_to_process: list = fun_directory_selector('Please select a directory
 
 # noinspection DuplicatedCode
 print("\n", directories_to_process)
+logger.info("\n", directories_to_process)
 
 if len(directories_to_process[0]) > 0:
 

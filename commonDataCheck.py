@@ -160,7 +160,7 @@ def datacheckmain(file_to_check: str):
             column = str(match_column)
             for match_class in match_class_sets:
                 row = str(match_class)
-                # the data is in initial thin (current year) and match thin (matching year) so pass it to the calculation.
+# the data is in initial thin (current year) and match thin (matching year) so pass it to the calculation.
                 percentage_difference_to_total: float = func_data_calculation(initial_thin,
                                                                               match_thin,
                                                                               match_column,

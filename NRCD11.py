@@ -79,16 +79,18 @@ def data_loading(app, file_path_variable):
     # from pywinauto.controls.uia_controls import ToolbarWrapper
     time.sleep(30)
 
+    directory_name, file = os.path.split(file_path_variable)
+
     # click on the loading button
 
-    app.window(best_match='National Roads Condition Database - Version*', top_level_only=True)\
+    app.window(best_match='National Roads Condition Database - Version*', top_level_only=True) \
         .child_window(best_match='Loading').click()
 
     # if the file_path_variable directory contains a file 'BatchList' use the 'Select Batch File'
     # else use 'Create Batch file'
 
     if os.path.isfile(file_path_variable + '/BatchList.txt'):
-        filename = file_path_variable + '/BatchList.txt'
+        filename = '/BatchList.txt'
         print("\nfile name exists using Select", filename)
 
         time.sleep(30)
@@ -113,8 +115,13 @@ def data_loading(app, file_path_variable):
         app2 = Application(backend="uia").connect(title_re='Select a batch file', visible_only=True)
         print("\nConnect app2 filename is ", filename)
 
+        directory_name, file = os.path.split(filename)
         app2.window(title_re='Select a batch file') \
-            .File_name_Edit.set_text(filename)
+            .child_window(title='All locations', control_type="SplitButton").click()
+        app2.window(title_re='Select a batch file') \
+            .Address_Edit.set_text(directory_name)
+        app2.window(title_re='Select a batch file') \
+            .File_name_Edit.set_text(file)
 
         time.sleep(15)
 
@@ -148,7 +155,7 @@ def data_loading(app, file_path_variable):
         # filename = filename[0]
 
         print("\nFile found : ", filename)
-        filename = filename[1].replace('/', '\\')
+        filename = filename[0].replace('/', '\\')
         time.sleep(20)
 
         # click on 'Create Batch File' then OK on the following window
@@ -181,6 +188,8 @@ def data_loading(app, file_path_variable):
         app3 = Application(backend="uia").connect(title='Create a file in the required directory')
         print("\nconnect app3")
         time.sleep(15)
+
+        window = app3.Dialog
         # edit_text_box2 = app3.window(title_re='Select a batch file') \
         #    .child_window(best_match="File name:")
         # from pywinauto.controls.win32_controls import EditWrapper
@@ -191,10 +200,51 @@ def data_loading(app, file_path_variable):
         #    .child_window(best_match='OK').click()
 
         # put the filename that was found into the filename box
-        # app3.window(title_re='Create a file in the required directory').print_control_identifiers()
 
-        app3.window(title_re='Create a file in the required directory') \
-            .File_name_Edit.set_text(filename)
+        directory_name, file = os.path.split(filename)
+        print(directory_name)
+        print(file)
+        from pywinauto.controls.win32_controls import ButtonWrapper
+        # app3.print_control_identifiers()
+        # app3.window(title_re='Create a file in the required directory').print_control_identifiers()
+        location_split_button3 = window.child_window(best_match='Toolbar4')
+        ButtonWrapper(location_split_button3).click()
+
+        directory_name, file = os.path.split(filename)
+
+        raw_directory_name = r'{}'.format(directory_name)
+
+        # location_split_button3.set_text(directory_name)
+        directory_field = window.child_window(title_re='Address', control_type="Edit").set_edit_text(raw_directory_name)
+        directory_field.Send_keys("{ENTER}")
+        # app3.window(title_re='Create a file in the required directory').print_control_identifiers()
+        time.sleep(30)
+
+        # app3.window(title_re='Create a file in the required directory') \
+        #    .child_window(title="Address band toolbar", control_type="ToolBar") \
+        #    .child_window(title_re='Go to.*', control_type="Button").click()
+        # hwnd=0x0000000000110B90
+
+        # from pywinauto.controls.uia_controls import ButtonWrapper
+        # ButtonWrapper(go_to_button).click()
+
+        # app3.window(title_re='Create a file in the required directory') \
+        #    .child_window(title='Address', control_type="ComboBox") \
+        #    .child_window(title='Address', auto_id="41477", control_type="Edit").set_text(directory_name)
+        # app3.window(title_re='Create a file in the required directory') \
+        #    .Address_Edit.set_text(directory_name)
+        # app3.window(title_re='Create a file in the required directory', top_level_only=True)\
+        #    .child_window(title_re="Go to.*", control_type="Button").set_focus()
+        # time.sleep(15)
+        # app3.window(title_re='Create a file in the required directory', top_level_only=True) \
+        #    .child_window(title_re="Go to.*", control_type="Button").click()
+        # address_button = app3.window(title_re='Create a file in the required directory') \
+        #    .child_window(title_re="Go to.*", control_type="Button")
+
+        # from pywinauto.controls.win32_controls import ButtonWrapper
+        # ButtonWrapper(address_button).click()
+
+        window.File_name_Edit.set_text(file)
 
         # Click on the open button, this is a bit more involved so that it works with a locked screen.
 
@@ -489,16 +539,16 @@ def assign_urb_rural(app):
 
     time.sleep(60)
 
-    main_screen = app.window(best_match='National Roads Condition Database - V*')
+    aur_main_screen = app.window(best_match='National Roads Condition Database - V*')
 
     time.sleep(60)
 
     # on the main screen turn all the check boxes off.
 
-    main_screen_process_checkbox = main_screen.child_window(title="Process", auto_id="15", control_type="CheckBox")
-    main_screen_process_checkbox2 = main_screen.child_window(title="Process", auto_id="16", control_type="CheckBox")
-    main_screen_process_checkbox3 = main_screen.child_window(title="Process", auto_id="17", control_type="CheckBox")
-    main_screen_process_checkbox4 = main_screen.child_window(title="Process", auto_id="18", control_type="CheckBox")
+    main_screen_process_checkbox = aur_main_screen.child_window(title="Process", auto_id="15", control_type="CheckBox")
+    main_screen_process_checkbox2 = aur_main_screen.child_window(title="Process", auto_id="16", control_type="CheckBox")
+    main_screen_process_checkbox3 = aur_main_screen.child_window(title="Process", auto_id="17", control_type="CheckBox")
+    main_screen_process_checkbox4 = aur_main_screen.child_window(title="Process", auto_id="18", control_type="CheckBox")
 
     time.sleep(60)
 
@@ -577,14 +627,14 @@ def scanner_qa(app, file_path_variable):
 
     time.sleep(150)
 
-    main_screen = app.window(best_match='National Roads Condition Database - V*')
+    sq_main_screen = app.window(best_match='National Roads Condition Database - V*')
 
     # turn all the process check boxes off.
 
-    main_screen_process_checkbox = main_screen.child_window(title="Process", auto_id="15", control_type="CheckBox")
-    main_screen_process_checkbox2 = main_screen.child_window(title="Process", auto_id="16", control_type="CheckBox")
-    main_screen_process_checkbox3 = main_screen.child_window(title="Process", auto_id="17", control_type="CheckBox")
-    main_screen_process_checkbox4 = main_screen.child_window(title="Process", auto_id="18", control_type="CheckBox")
+    main_screen_process_checkbox = sq_main_screen.child_window(title="Process", auto_id="15", control_type="CheckBox")
+    main_screen_process_checkbox2 = sq_main_screen.child_window(title="Process", auto_id="16", control_type="CheckBox")
+    main_screen_process_checkbox3 = sq_main_screen.child_window(title="Process", auto_id="17", control_type="CheckBox")
+    main_screen_process_checkbox4 = sq_main_screen.child_window(title="Process", auto_id="18", control_type="CheckBox")
 
     time.sleep(60)
 
@@ -806,6 +856,7 @@ if len(directories_to_process[0]) > 0:
         # .print_control_identifiers()
         time.sleep(30)
 
+        # app.window(best_match='') \
         app.window(best_match='', top_level_only=True) \
             .child_window(best_match='Enter System').click()
 
