@@ -3,6 +3,7 @@ from pandas import DataFrame
 import glob
 import pandas as pd
 import re
+import os
 from tkinter import Tk
 from tkinter.filedialog import askopenfilename
 
@@ -160,7 +161,7 @@ def datacheckmain(file_to_check: str):
             column = str(match_column)
             for match_class in match_class_sets:
                 row = str(match_class)
-# the data is in initial thin (current year) and match thin (matching year) so pass it to the calculation.
+            # the data is in initial thin (current year) and match thin (matching year) so pass it to the calculation.
                 percentage_difference_to_total: float = func_data_calculation(initial_thin,
                                                                               match_thin,
                                                                               match_column,
@@ -170,8 +171,67 @@ def datacheckmain(file_to_check: str):
 
         # store the results
 
-        with open("//trllimited/data/INF_ScannerQA/Audit_Reports/outputTest.txt", "a") as output_file:
-            print(" ", file=output_file)
+        # Print the input file
+        print(initial_file)
+
+        # using re
+        # Extract digit string
+        year_str = re.sub(r"\D", "", initial_file)
+        #  next year is the last two chars of the year + 1
+        year_nxt = str(int(year_str) + 1)
+        year_nxt = year_nxt[-2:]
+        year_directory = '{}-{}'.format(year_str,year_nxt)
+        # print(year_directory)
+
+        directory_name, file_name = os.path.split(initial_file)
+
+        output_str = '//trllimited/data/INF_ScannerQA/Audit_Reports/{}/England/{}'.format(year_directory,file_name)
+        print(output_str)
+        ''' 
+        The following should only remove the year '-9999' some authorities have more than one word and use
+        underscores as the separator so it cannot be split at the underscore
+        '''
+        #authority = re.search("^(?!(_\d*)$)", file_name)
+        authority = re.sub(r'(_[0-9]*\.csv$)', '', file_name)
+        #imtag = re.m(r'<img.*?>', line).group(0)
+        # _[0-9]*\.csv$
+        print("authority ", authority)
+
+        for root, dirs, files in os.walk('//trllimited/data/INF_ScannerQA/2021-22 SCANNER Data'):
+
+            # search the directory to find the authority then extract and return the surveyor
+            #print(root)
+            if authority in dirs:
+                # dirs.remove('CVS')  # don't visit CVS directories
+                print(root)
+                surveyor = root.split('\\')[-2]
+                #nation = root.split('\\')[-1]
+                print(surveyor)
+                #print(nation)
+
+        # build the output file string
+
+        output_file_string = '//trllimited/data/INF_ScannerQA/Audit_Reports/{}-{}/{}/{}/{}CommonData.txt'\
+            .format(year_str,
+                    year_nxt,
+                    surveyor,
+                    authority,
+                    authority)
+        print(output_file_string)
+
+        output_file_directory = '//trllimited/data/INF_ScannerQA/Audit_Reports/{}-{}/{}/{}' \
+            .format(year_str,
+                    year_nxt,
+                    surveyor, #                    nation,
+                    authority)
+
+        if not os.path.exists(output_file_directory):
+            os.makedirs(output_file_directory)
+
+        with open(output_file_string, "a") as output_file:
+        # open(output_file_string, "a")
+            print(output_file)
+            print("---", file=output_file)
             print(initial_file, file=output_file)
             print(match_file, file=output_file)
             print(year_results_df.to_string(), file=output_file)  # dataframe containing the results
