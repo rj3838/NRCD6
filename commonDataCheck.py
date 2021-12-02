@@ -9,13 +9,14 @@ from tkinter.filedialog import askopenfilename
 
 
 # Function to find all the files for that authority
+
+
 def fun_authority_file_search(file_path_variable: str):
     # get a list of the files matching the Authority of the selected file
 
     file_search_variable: str = file_path_variable.replace('/', '\\')
 
     # replace the year from the filename for a generic search [1-3][0-9]{3}
-    # file_search_variable: str = re.match(r'.*20[0-9]{2}', file_search_variable)
 
     year_str: str = (re.findall(r'20[0-9]{2}', file_search_variable))[-1]
     file_search_variable = file_search_variable.replace(year_str, "*")
@@ -108,7 +109,7 @@ def create_thin_df(long_df: DataFrame) -> DataFrame:
 # select the initial (current) file to match
 
 
-def datacheckmain(file_to_check: str):
+def data_check_main(file_to_check: str) -> None:
 
     # if the file to check string is empty
     if not file_to_check:
@@ -123,9 +124,58 @@ def datacheckmain(file_to_check: str):
 
     initial_df: pd.DataFrame = file_loading(initial_file)
 
+    # Extract digit string
+    year_str = re.sub(r"\D", "", initial_file)
+    #  next year is the last two chars of the year + 1
+    year_nxt = str(int(year_str) + 1)
+    year_nxt = year_nxt[-2:]
+    year_directory = '{}-{}'.format(year_str, year_nxt)
+    # print(year_directory)
+
+    directory_name, file_name = os.path.split(initial_file)
+
+    ''' 
+            The following should only remove the year ie '-9999' some authorities have more than one word and use
+            underscores as the separator so it cannot be split at the underscore
+    '''
+    # remove _9999.csv from the filename
+    authority = re.sub(r'(_[0-9]*\.csv$)', '', file_name)
+    print("authority ", authority)
+
+    for root, dirs, files in os.walk('//trllimited/data/INF_ScannerQA/2021-22 SCANNER Data'):
+
+        # search the directory to find the authority then extract and return the surveyor
+        # print(root)
+        if authority in dirs:
+            # dirs.remove('CVS')  # don't visit CVS directories
+            print(root)
+            surveyor = root.split('\\')[-2]
+            # nation = root.split('\\')[-1]
+            print(surveyor)
+            # print(nation)
+
+    # build the output file string
+
+    output_file_string = '//trllimited/data/INF_ScannerQA/Audit_Reports/{}-{}/{}/{}/{}CommonData.txt' \
+        .format(year_str,
+                year_nxt,
+                surveyor,
+                authority,
+                authority)
+    print(output_file_string)
+
+    output_file_directory = '//trllimited/data/INF_ScannerQA/Audit_Reports/{}-{}/{}/{}' \
+        .format(year_str,
+                year_nxt,
+                surveyor,  # nation,
+                authority)
+
+    if not os.path.exists(output_file_directory):
+        os.makedirs(output_file_directory)
+
     # probably don't need to sort but belt and braces...
 
-    sort_order: list = ['SectionLabel', 'SectionID', 'Lane', 'Class', 'UR', 'Chainage']
+    # sort_order: list = ['SectionLabel', 'SectionID', 'Lane', 'Class', 'UR', 'Chainage']
 
     # group the data we are comparing to into the selection columns and the chainage for the selection
     # initial_thin = pd.DataFrame()
@@ -153,8 +203,8 @@ def datacheckmain(file_to_check: str):
         match_b_and_c_class: list = ['B', 'C']
         match_class_sets = [match_all_class, match_a_class, match_b_and_c_class]
 
-        column_list = ['match_all', 'match_label_lane', 'match_id_lane']
-        row_list = ['match_all_class', 'match_a_class', 'match_b_and_c_class']
+        # column_list = ['match_all', 'match_label_lane', 'match_id_lane']
+        # row_list = ['match_all_class', 'match_a_class', 'match_b_and_c_class']
         year_results_df = pd.DataFrame()
 
         for match_column in match_column_sets:
@@ -175,69 +225,22 @@ def datacheckmain(file_to_check: str):
         print(initial_file)
 
         # using re
-        # Extract digit string
-        year_str = re.sub(r"\D", "", initial_file)
-        #  next year is the last two chars of the year + 1
-        year_nxt = str(int(year_str) + 1)
-        year_nxt = year_nxt[-2:]
-        year_directory = '{}-{}'.format(year_str,year_nxt)
-        # print(year_directory)
 
-        directory_name, file_name = os.path.split(initial_file)
-
-        output_str = '//trllimited/data/INF_ScannerQA/Audit_Reports/{}/England/{}'.format(year_directory,file_name)
+        output_str = '//trllimited/data/INF_ScannerQA/Audit_Reports/{}/England/{}'.format(year_directory, file_name)
         print(output_str)
-        ''' 
-        The following should only remove the year '-9999' some authorities have more than one word and use
-        underscores as the separator so it cannot be split at the underscore
-        '''
-        #authority = re.search("^(?!(_\d*)$)", file_name)
-        authority = re.sub(r'(_[0-9]*\.csv$)', '', file_name)
-        #imtag = re.m(r'<img.*?>', line).group(0)
-        # _[0-9]*\.csv$
-        print("authority ", authority)
-
-        for root, dirs, files in os.walk('//trllimited/data/INF_ScannerQA/2021-22 SCANNER Data'):
-
-            # search the directory to find the authority then extract and return the surveyor
-            #print(root)
-            if authority in dirs:
-                # dirs.remove('CVS')  # don't visit CVS directories
-                print(root)
-                surveyor = root.split('\\')[-2]
-                #nation = root.split('\\')[-1]
-                print(surveyor)
-                #print(nation)
-
-        # build the output file string
-
-        output_file_string = '//trllimited/data/INF_ScannerQA/Audit_Reports/{}-{}/{}/{}/{}CommonData.txt'\
-            .format(year_str,
-                    year_nxt,
-                    surveyor,
-                    authority,
-                    authority)
-        print(output_file_string)
-
-        output_file_directory = '//trllimited/data/INF_ScannerQA/Audit_Reports/{}-{}/{}/{}' \
-            .format(year_str,
-                    year_nxt,
-                    surveyor, #                    nation,
-                    authority)
-
-        if not os.path.exists(output_file_directory):
-            os.makedirs(output_file_directory)
 
         with open(output_file_string, "a") as output_file:
-        # open(output_file_string, "a")
-            print(output_file)
+
+            # print(output_file)
             print("---", file=output_file)
             print(initial_file, file=output_file)
             print(match_file, file=output_file)
             print(year_results_df.to_string(), file=output_file)  # dataframe containing the results
 
 
-# call the datacheckmain
+# call the data_check_main
 
 if __name__ == '__main__':
-    datacheckmain("")
+    data_check_main("")
+# else:
+#    data_check_main(file_to_check: str)
