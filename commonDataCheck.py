@@ -141,6 +141,7 @@ def data_check_main(file_to_check: str) -> None:
     # remove _9999.csv from the filename
     authority = re.sub(r'(_[0-9]*\.csv$)', '', file_name)
     print("authority ", authority)
+    surveyor: str = ''
 
     for root, dirs, files in os.walk('//trllimited/data/INF_ScannerQA/2021-22 SCANNER Data'):
 
@@ -242,5 +243,6 @@ def data_check_main(file_to_check: str) -> None:
 
 if __name__ == '__main__':
     data_check_main("")
-# else:
-#    data_check_main(file_to_check: str)
+else:
+    file_to_check: str
+    data_check_main(file_to_check)
