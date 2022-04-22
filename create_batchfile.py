@@ -43,9 +43,10 @@ def create_batchfile_main(file_to_check: str) -> None:
 
 # Main proc. Check it's running in isolation or has been called.
 # directory_to_check will be passed from calling proc
+def batchfile_creation(directory_to_check) -> None:
 
-if __name__ == '__main__':
-    create_batchfile_main('')
-else:
-    directory_to_check: str
-    create_batchfile_main(directory_to_check)
+    if __name__ == '__main__':
+        create_batchfile_main('')
+    else:
+        # directory_to_check: str
+        create_batchfile_main(directory_to_check)

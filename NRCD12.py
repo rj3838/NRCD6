@@ -8,7 +8,7 @@ import tkinter
 from tkinter import filedialog
 # import pywinauto.controls.common_controls as pwaccc
 import pandas as pd
-import create_batchfile
+from create_batchfile import batchfile_creation
 # import commonDataCheck as cdck
 
 
@@ -87,126 +87,53 @@ def data_loading(app, file_path_variable):
 
     # if the file_path_variable directory contains a file 'BatchList' use the 'Select Batch File'
     # else use 'Create Batch file'
+    filename = file_path_variable + '/BatchList.txt'
 
-    if os.path.isfile(file_path_variable + '/BatchList.txt'):
-        filename = file_path_variable + '/BatchList.txt'
-        print("\nfile name exists using Select", filename)
+    if not os.path.isfile(filename):
 
-        time.sleep(30)
+        print("\n creating the BatchList.txt")
 
-        app.window(best_match='National Roads Condition Database - Version', top_level_only=True) \
-            .child_window(best_match='Select Batch file').click()
+        # calling the module to create the batchfile
 
-        filename = filename.replace('/', '\\')
-        print("\nfile exists", filename)
-        time.sleep(15)
+        batchfile_creation(filename)
 
-        # check existence of the app2 variable if it is there destroy it as connecting to the file selection
-        # is going to create it and it could get messy if it's still there from processing the previous LA.
-        try:
-            app2
-        except NameError:
-            print('app2 not used')
-        else:
-            del app2
+        # else : - the batchfile is there so use it.
 
-        # Connect to the selection window and enter the batch file name.
-        app2 = Application(backend="uia").connect(title_re='Select a batch file', visible_only=True)
-        print("\nConnect app2 filename is ", filename)
+    print("\nfile name exists using Select", filename)
 
-        app2.window(title_re='Select a batch file') \
-            .File_name_Edit.set_text(filename)
+    time.sleep(30)
 
-        time.sleep(15)
+    app.window(best_match='National Roads Condition Database - Version', top_level_only=True) \
+        .child_window(best_match='Select Batch file').click()
 
-        batch_split_button2 = app2.window(title_re='Select a batch file') \
-            .child_window(auto_id='1', control_type="SplitButton")
-        from pywinauto.controls.win32_controls import ButtonWrapper
-        ButtonWrapper(batch_split_button2).click()
+    filename = filename.replace('/', '\\')
+    print("\nfile exists", filename)
+    time.sleep(15)
 
+    # check existence of the app2 variable if it is there destroy it as connecting to the file selection
+    # is going to create it and it could get messy if it's still there from processing the previous LA.
+    try:
+        app2
+    except NameError:
+        print('app2 not used')
+    else:
         del app2
 
-    else:
-        # else pick the first .hmd file and use 'Create Batch File'
-        print("\nBatchfile file missing")
+    # Connect to the selection window and enter the batch file name.
+    app2 = Application(backend="uia").connect(title_re='Select a batch file', visible_only=True)
+    print("\nConnect app2 filename is ", filename)
 
-        time.sleep(30)
+    app2.window(title_re='Select a batch file') \
+        .File_name_Edit.set_text(filename)
 
-        # app.window(best_match='National Roads Condition Database - Version', top_level_only=True).child_window(
-        #   best_match='OK').click()
-        app.window(best_match='National Roads Condition Database - Version', top_level_only=True) \
-            .child_window(best_match='Create Batch file').click()
+    time.sleep(15)
 
-        # filename = filename.replace('/', '\\')
-        # print("\nfile exists", filename)
-        # time.sleep(15)
-        # app2 = Application(backend="uia").connect(title_re='Select a batch file', visible_only=True)
-        # print("\nConnect app2 filename is ", filename)
+    batch_split_button2 = app2.window(title_re='Select a batch file') \
+        .child_window(auto_id='1', control_type="SplitButton")
+    from pywinauto.controls.win32_controls import ButtonWrapper
+    ButtonWrapper(batch_split_button2).click()
 
-        file_search_variable = (file_path_variable + '/*.hmd').replace('/', '\\')
-        print("\nfile_search_variable = ", file_search_variable)
-        filename = glob.glob(file_search_variable)
-        # filename = filename[0]
-
-        print("\nFile found : ", filename)
-        filename = filename[1].replace('/', '\\')
-        time.sleep(20)
-
-        # click on 'Create Batch File' then OK on the following window
-
-        # app.window(best_match='National Roads Condition Database') \
-        #    .child_window(best_match='Create Batch file').click()
-
-        time.sleep(30)
-
-        app.window(best_match='National Roads Condition Database') \
-            .child_window(title='NRCD').OK.click()
-
-        # app.window(best_match='National Roads Condition Database Version *') \
-        #    .child_window(best_match='OK').click()
-
-        time.sleep(30)
-
-        # There will be a file selection window. Connect to it (it's not part of NRCD)
-        # So it's a new application.
-        #
-        # But first if app3 is already there get rid of it first.
-
-        try:
-            app3
-        except NameError:
-            print('app3 not used')
-        else:
-            del app3
-
-        app3 = Application(backend="uia").connect(title='Create a file in the required directory')
-        print("\nconnect app3")
-        time.sleep(15)
-        # edit_text_box2 = app3.window(title_re='Select a batch file') \
-        #    .child_window(best_match="File name:")
-        # from pywinauto.controls.win32_controls import EditWrapper
-        # EditWrapper(edit_text_box2).set_text(filename)
-
-        # app.window(best_match='National Roads Condition Database  - Version *') \
-        #    .child_window(best_match='NRCD') \
-        #    .child_window(best_match='OK').click()
-
-        # put the filename that was found into the filename box
-        # app3.window(title_re='Create a file in the required directory').print_control_identifiers()
-
-        app3.window(title_re='Create a file in the required directory') \
-            .File_name_Edit.set_text(filename)
-
-        # Click on the open button, this is a bit more involved so that it works with a locked screen.
-
-        batch_split_button1 = app3.window(title_re='Create a file in the required directory') \
-            .child_window(auto_id='1', control_type="SplitButton")
-        from pywinauto.controls.win32_controls import ButtonWrapper
-        ButtonWrapper(batch_split_button1).click()
-
-        # remove references to the window where the filename was entered as it will use
-        # the same variable next time round (next LA)
-        del app3
+    del app2
 
     # if the file_path_variable directory string contains WDM
     if "WDM" in file_path_variable:
