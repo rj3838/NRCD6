@@ -151,7 +151,11 @@ def data_check_main(file_to_check: str) -> None:
             # dirs.remove('CVS')  # don't visit CVS directories
             print(root)
             surveyor = root.split('\\')[-2]
-            # nation = root.split('\\')[-1]
+            nation = root.split('\\')[-1]
+
+            if (nation == "Scotland") & (surveyor == "WDM"):
+                surveyor = "Scotland_WDM"
+
             print(surveyor)
             # print(nation)
 
