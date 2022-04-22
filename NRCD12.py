@@ -1,5 +1,4 @@
 # from pywinauto.application import Application
-import glob
 import logging
 import os
 import sys
@@ -207,14 +206,6 @@ def assign_la(app, file_path_variable):
 
     time.sleep(30)
 
-    # app.window(best_match='National Roads Condition Database') \
-    #    .child_window(title='NRCD').OK.click()
-
-    # app.window(best_match='National Roads Condition Database - Version *') \
-    #  .child_window(title="Local Authority Attribute", auto_id="3", control_type="Group") \
-    #   .child_window(title="Select Batch File", auto_id="7", control_type="Button") \
-    #   .click()
-
     filename = file_path_variable + '/BatchList.txt'
     print("\nfilename is ", filename)
     logger.info('File name is ' + filename)
@@ -230,16 +221,10 @@ def assign_la(app, file_path_variable):
 
     # split filename into the directory path and the filename (because Mickysoft has changed the window !)
     # directory_path = os.path.dirname(filename)
-    # app4.window(title_re='Select a batch file') \
-    #    .Toolbar4_Edit.set_text(directory_path)
 
-    # selected_filename = os.path.basename(filename)
     app4.window(title_re='Select a batch file') \
         .File_name_Edit.set_text(filename)
-    # app4.window(title_re='Select a batch file').File_name_Edit.set_text(filename)
-    # app4.window(title_re='Select a batch file').print_control_identifiers()
 
-    # app4.window(title_re='Select a batch file').type_keys('%o')
     batch_splitbutton1 = app4.window(title_re='Select a batch file') \
         .child_window(auto_id='1', control_type="SplitButton")
     from pywinauto.controls.win32_controls import ButtonWrapper
@@ -253,8 +238,6 @@ def assign_la(app, file_path_variable):
 
     local_authority = filename.split("\\")[-2]
 
-    # print(local_authority)
-
     logger.info('starting to assign attributes for ' + local_authority)
 
     # Load the human name to database name csv table
@@ -267,16 +250,8 @@ def assign_la(app, file_path_variable):
 
     logger.info('DB name for the LA is ' + la_db_name)
 
-    # app.window(best_match='National Roads Condition Database - Version*') \
-    #   .child_window(best_match='Local Authority Attribute', control_type="Group").print_control_identifiers()
     time.sleep(15)
 
-    # app.window(best_match='National Roads Condition Database - Version *') \
-    # .child_window(title="Local Authority Attribute", control_type="Group") \
-    # .child_window(best_match='3',control_type="ComboBox").type_keys("%{DOWN}")
-    # app.window(best_match='National Roads Condition Database - Version*') \
-    # .child_window(best_match='Local Authority Attribute', control_type="Group") \
-    # .child_window(auto_id='6', control_type="ComboBox").select(la_db_name)
     # print(la_db_name)
 
     batch_combobox1 = app.window(best_match='National Roads Condition Database - Version*') \
@@ -328,10 +303,8 @@ def assign_la(app, file_path_variable):
 def fitting(app):
     from pywinauto.controls.win32_controls import ComboBoxWrapper
     from pywinauto.controls.win32_controls import ButtonWrapper
-    # from pywinauto.controls import uia_controls
-    # from pywinauto.controls import common_controls
 
-    # Turn all the process radio buttons off.
+    # Turn all the process radio buttons off. Not pretty but it works
 
     main_screen_process_checkbox = main_screen.child_window(title="Process", auto_id="15", control_type="CheckBox")
     main_screen_process_checkbox2 = main_screen.child_window(title="Process", auto_id="16", control_type="CheckBox")
@@ -463,7 +436,7 @@ def assign_urb_rural(app):
     group_control = app.window(best_match='National Roads Condition Database - Version *') \
         .child_window(title="Attributes Options", auto_id="12", control_type="Group")
 
-    # groupcontrol.print_control_identifiers()
+    # group_control.print_control_identifiers()
 
     # Select SCANNER and the survey year and click on OK
 
@@ -616,26 +589,16 @@ def scanner_qa(app, file_path_variable):
     app5 = Application(backend="uia").connect(title_re='Select an output file name', visible_only=True)
     print("\nConnect app5 filename is ", output_file_name)
     time.sleep(30)
-    # app5.window(title_re='Select an output file name').print_control_identifiers()
-
-    # split output_file_name into the directory path and the filename (because Mickysoft has changed the window !)
-    # directory_path = os.path.dirname(output_file_name)
-    # app5.window(title_re='Select an output file name') \
-    #    .Toolbar4_Edit.set_text(directory_path)
 
     # selected_filename = os.path.basename(output_file_name)
     app5.window(title_re='Select an output file name') \
         .File_name_Edit.set_text(output_file_name)
-    # app5.window(title_re='Select an output file name').File_name_Edit.set_text(output_file_name)
-    # app5.window(title_re='Select an output file name').print_control_identifiers()
 
     batch_split_button1 = app5.window(title_re='Select an output file name') \
         .child_window(title='Save', auto_id='1', control_type="Button")
     from pywinauto.controls.win32_controls import ButtonWrapper
     ButtonWrapper(batch_split_button1).click()
 
-    # app5.window(title_re='Select an output file name').type_keys(output_file_name, with_spaces=True)
-    # app5.window(title_re='Select an output file name').Save.click()
     del app5
 
     time.sleep(60)
@@ -645,10 +608,6 @@ def scanner_qa(app, file_path_variable):
     app.window(best_match='National Roads Condition Database - Version *') \
         .child_window(title="NRCD") \
         .wait("exists ready", timeout=10000, retry_interval=60)
-
-    # app.window(best_match='National Roads Condition Database - Version *') \
-    #    .child_window(title="NRCD") \
-    #    .print_control_identifiers()
 
     app.window(best_match='National Roads Condition Database - Version *') \
         .child_window(title="NRCD").OK.click()
@@ -704,7 +663,6 @@ directories_to_process = list()
 directories_to_process: list = fun_directory_selector('Please select a directory containing the data',
                                                       directories_to_process,
                                                       curr_dir)
-# print(directories_to_process, sep='\n')
 
 # noinspection DuplicatedCode
 print("\n", directories_to_process)

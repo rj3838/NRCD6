@@ -36,14 +36,18 @@ def create_batchfile_main(file_to_check: str) -> None:
                     s = PureWindowsPath(s)
                     output.write(str(s) + '\n')
         else:
-            print("No HMD files found in ", hmd_directory_list )
+            print("No HMD files found in ", hmd_directory_list)
 
     else:
         print(check_directory, " Directory not found")
 
 # Main proc. Check it's running in isolation or has been called.
 # directory_to_check will be passed from calling proc
+
+
 def batchfile_creation(directory_to_check) -> None:
+
+    # This block checks if it is running in isolation (command line) of is being called by something else
 
     if __name__ == '__main__':
         create_batchfile_main('')
