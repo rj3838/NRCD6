@@ -1,14 +1,12 @@
-# from pywinauto.application import Application
 import logging
 import os
 import sys
 import time
 import tkinter
 from tkinter import filedialog
-# import pywinauto.controls.common_controls as pwaccc
 import pandas as pd
 from create_batchfile import batchfile_creation
-# import commonDataCheck as cdck
+# from commonDataCheck import commonDataCheck
 
 
 def fun_directory_selector(request_string: str, selected_directory_list: list, search_directory):
@@ -27,7 +25,7 @@ def fun_directory_selector(request_string: str, selected_directory_list: list, s
 def nrcd_running_check(number_of_windows: str):
     from pywinauto import Application
 
-    # Check the taskbar to find the number of running applications. Anything different than the number_of_windows means
+    # Check the taskbar to find the number of running applications. Anything different from the number_of_windows means
     # that the function returns false and the calling process will wait
 
     tb = Application(backend="uia").connect(title='Taskbar')  # backend is important!!!
@@ -92,11 +90,11 @@ def data_loading(app, file_path_variable):
 
         print("\n creating the BatchList.txt")
 
-        # calling the module to create the batchfile
+        # calling the module to create the batch file
 
         batchfile_creation(filename)
 
-        # else : - the batchfile is there so use it.
+        # else : - the batch file is there so use it.
 
     print("\nfile name exists using Select", filename)
 
@@ -110,13 +108,13 @@ def data_loading(app, file_path_variable):
     time.sleep(15)
 
     # check existence of the app2 variable if it is there destroy it as connecting to the file selection
-    # is going to create it and it could get messy if it's still there from processing the previous LA.
-    try:
-        app2
-    except NameError:
-        print('app2 not used')
-    else:
-        del app2
+    # is going to create it, and it could get messy if it's still there from processing the previous LA.
+    # try:
+    #    app2
+    # except NameError:
+    #    print('app2 not used')
+    # else:
+    #    del app2
 
     # Connect to the selection window and enter the batch file name.
     app2 = Application(backend="uia").connect(title_re='Select a batch file', visible_only=True)
@@ -161,7 +159,7 @@ def data_loading(app, file_path_variable):
 
     ComboBoxWrapper(surveyor_combobox).select(survey_contractor)
 
-    # click 'OK' to close the data loading window as we have all the appropriate details entered in the window.
+    # click 'OK' to close the data loading window as we have all the appropriate details in the window.
 
     app.window(best_match='National Roads Condition Database') \
         .child_window(best_match='OK').click()
@@ -172,13 +170,13 @@ def data_loading(app, file_path_variable):
                top_level_only=True).child_window(best_match='Process').click()
 
     # The log entry contains the first file to be loaded (the rest will not appear and NRCD uses the
-    # batchfile to find them
+    # batch file to find them
 
     logger.info('Starting loading with ' + filename)
 
     time.sleep(60)
 
-    # wait for the loading to finish. It checks the number of windows open for NECD.exe. If these are less than
+    # wait for the loading to finish. It checks the number of windows open for NRCD.exe. If these are less than
     # two the section is complete, otherwise it loops.
 
     while nrcd_running_check('2'):
@@ -219,16 +217,16 @@ def assign_la(app, file_path_variable):
 
     time.sleep(60)
 
-    # split filename into the directory path and the filename (because Mickysoft has changed the window !)
+    # split filename into the directory path and the filename (because Micky soft has changed the window !)
     # directory_path = os.path.dirname(filename)
 
     app4.window(title_re='Select a batch file') \
         .File_name_Edit.set_text(filename)
 
-    batch_splitbutton1 = app4.window(title_re='Select a batch file') \
+    batch_split_button1 = app4.window(title_re='Select a batch file') \
         .child_window(auto_id='1', control_type="SplitButton")
     from pywinauto.controls.win32_controls import ButtonWrapper
-    ButtonWrapper(batch_splitbutton1).click()
+    ButtonWrapper(batch_split_button1).click()
 
     time.sleep(60)
 
@@ -332,7 +330,7 @@ def fitting(app):
 
     time.sleep(10)
 
-    # set the check boxes for fitting the data using a grid.
+    # set the checkboxes for fitting the data using a grid.
 
     ButtonWrapper(app.window(best_match='National Roads Condition Database')
                   .child_window(title="Fit unfitted data", auto_id="22", control_type="RadioButton")) \
@@ -369,7 +367,7 @@ def fitting(app):
 
     time.sleep(600)
 
-    # wait for the loading to finish. It checks the number of windows open for NECD.exe. If these are less than
+    # wait for the loading to finish. It checks the number of windows open for NRCD.exe. If these are less than
     # two the section is complete, otherwise it loops.
 
     while nrcd_running_check('2'):
@@ -394,7 +392,7 @@ def assign_urb_rural(app):
 
     time.sleep(60)
 
-    # on the main screen turn all the check boxes off.
+    # on the main screen turn all the checkboxes off.
 
     main_screen_process_checkbox = main_screen.child_window(title="Process", auto_id="15", control_type="CheckBox")
     main_screen_process_checkbox2 = main_screen.child_window(title="Process", auto_id="16", control_type="CheckBox")
@@ -431,7 +429,7 @@ def assign_urb_rural(app):
         .child_window(title="Attributes Options", auto_id="12", control_type="Group") \
         .wait("exists ready", timeout=90, retry_interval=60)
 
-    # set groupcontrol to that part of the window.
+    # set group_control to that part of the window.
 
     group_control = app.window(best_match='National Roads Condition Database - Version *') \
         .child_window(title="Attributes Options", auto_id="12", control_type="Group")
@@ -450,7 +448,7 @@ def assign_urb_rural(app):
 
     app.window(best_match='National Roads Condition Database').child_window(best_match='OK').click()
 
-    # back to the main window where the process click box is already set by the NRCD prog and it's waiting
+    # back to the main window where the process click box is already set by the NRCD and where it's waiting
     # for the process button at the bottom to be clicked.
 
     main_screen.Process.click()
@@ -459,7 +457,7 @@ def assign_urb_rural(app):
 
     # after an appropriate time start waiting for the processing to finish.
 
-    # wait for the window to close. It checks the number of windows open for NECD.exe. If these are less than
+    # wait for the window to close. It checks the number of windows open for NRCD.exe. If these are less than
     # two the section is complete, otherwise it loops.
 
     while nrcd_running_check('2'):
@@ -559,7 +557,7 @@ def scanner_qa(app, file_path_variable):
     # build output file name.
     # LIVE
     output_file_name = os.path.normpath("//trllimited/data/INF_ScannerQA/Audit_Reports/NRCD Data/" + nation + "/" +
-                                           local_authority + "_" + year + ".csv")
+                                        local_authority + "_" + year + ".csv")
     # test
     # output_file_name = os.path.normpath("C:/Users/rjaques/temp/Data/" + nation + "/" + local_authority + "_" +
     #                                    year + ".csv")
@@ -636,7 +634,7 @@ logging.basicConfig(level=logging.DEBUG,
                     filemode='a+')
 
 logger = logging.getLogger('autoNRCD')
-#logger.setLevel(logging.INFO)
+# logger.setLevel(logging.INFO)
 
 # create console handler and set level to debug
 ch = logging.StreamHandler()
@@ -676,9 +674,9 @@ if len(directories_to_process[0]) > 0:
             logger.info('Working with ' + file_path_variable)
 
 # logger.info('Working with ' + file_path_variable)
-# file_path_variable = filedialog.askdirectory(initialdir=curr_dir,
+# file_path_variable = filedialog.askdirectory(initial dir=curr_dir,
 # title='Please select a directory containing the data')
-# print("\nfile_path_variable = ", file_path_variable)
+# print("\n file_path_variable = ", file_path_variable)
 
         from pywinauto.application import Application
 

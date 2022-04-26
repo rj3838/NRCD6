@@ -18,13 +18,13 @@ def fun_authority_file_search(file_path_variable: str):
 
     # replace the year from the filename for a generic search [1-3][0-9]{3}
 
-    year_str: str = (re.findall(r'20[0-9]{2}', file_search_variable))[-1]
+    year_str: str = (re.findall(r'20\d{2}', file_search_variable))[-1]
     file_search_variable = file_search_variable.replace(year_str, "*")
 
     # do a generic search to return a list of files and reverse it
     previous_files_to_match = glob.glob(file_search_variable)
 
-    # remove the first file as it is the initial file (highest year) and reverse it
+    # remove the first file as it is the initial file (recent year) and reverse it
     # as we want the most recent year first on the list
     previous_files_to_match = previous_files_to_match[:-1]
     previous_files_to_match.reverse()
@@ -41,12 +41,6 @@ def func_data_calculation(initial_thin_fdc: DataFrame,
                           match_thin_fdc: DataFrame,
                           match_columns_fdc: list,
                           match_class_fdc: list) -> float:
-    """
-    :param match_class_fdc:
-    :param match_thin_fdc:
-    :param initial_thin_fdc:
-    :type match_columns_fdc: object
-    """
 
     initial_class_df = initial_thin_fdc.loc[initial_thin_fdc["Class"].isin(match_class_fdc)]
 
@@ -139,7 +133,7 @@ def data_check_main(file_to_check: str) -> None:
             underscores as the separator so it cannot be split at the underscore
     '''
     # remove _9999.csv from the filename
-    authority = re.sub(r'(_[0-9]*\.csv$)', '', file_name)
+    authority = re.sub(r'(_\d*\.csv$)', '', file_name)
     print("authority ", authority)
     surveyor: str = ''
 
@@ -178,11 +172,7 @@ def data_check_main(file_to_check: str) -> None:
     if not os.path.exists(output_file_directory):
         os.makedirs(output_file_directory)
 
-    # probably don't need to sort but belt and braces...
-
-    # sort_order: list = ['SectionLabel', 'SectionID', 'Lane', 'Class', 'UR', 'Chainage']
-
-    # group the data we are comparing to into the selection columns and the chainage for the selection
+    # group the data we are comparing to into the selection columns and the chainage km for the selection
     # initial_thin = pd.DataFrame()
     # match_thin = pd.DataFrame()
 
@@ -227,16 +217,14 @@ def data_check_main(file_to_check: str) -> None:
         # store the results
 
         # Print the input file
-        print(initial_file)
-
-        # using re
+        # print(initial_file)
 
         output_str = '//trllimited/data/INF_ScannerQA/Audit_Reports/{}/England/{}'.format(year_directory, file_name)
         print(output_str)
 
         with open(output_file_string, "a") as output_file:
 
-            # print(output_file)
+            # print the output grid to the file
             print("---", file=output_file)
             print(initial_file, file=output_file)
             print(match_file, file=output_file)
